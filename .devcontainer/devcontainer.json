@@ -1,0 +1,43 @@
+{
+	"name": "Admin System Dev Container",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/admin",
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "21",
+			"installMaven": "true",
+			"installGradle": "false"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"vscjava.vscode-java-pack",
+				"vmware.vscode-boot-dev-pack",
+				"Vue.volar",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"tamasfe.even-better-toml",
+				"redhat.vscode-yaml",
+				"humao.rest-client"
+			],
+			"settings": {
+				"java.configuration.updateBuildConfiguration": "automatic",
+				"editor.formatOnSave": true
+			}
+		}
+	},
+	"forwardPorts": [
+		8080,
+		5173,
+		5432,
+		6379,
+		9876
+	],
+	"remoteUser": "vscode"
+}
