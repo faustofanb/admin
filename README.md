@@ -1,9 +1,5 @@
 # 多租户后台管理系统
 
-[![Project Status](https://img.shields.io/badge/Status-In%20Progress-yellow)](doc/PROJECT_STATUS.md)
-
-> 📊 **[查看详细开发进度 (Project Status)](doc/PROJECT_STATUS.md)**
-
 > 统一 README（面向开发与架构），与 `docs/design` 下的各章节详细设计配套使用。
 
 ---
