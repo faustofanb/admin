@@ -7,7 +7,6 @@ import io.github.faustofanb.admin.rpc.api.model.SysUserDTO;
 import io.github.faustofanb.admin.rpc.api.model.UserInfoDTO;
 import io.github.faustofanb.admin.rpc.api.system.RemoteUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -28,8 +27,9 @@ public class RemoteUserServiceImpl implements RemoteUserService {
 
         UserInfoDTO userInfoDTO = new UserInfoDTO();
         SysUserDTO sysUserDTO = new SysUserDTO();
-        
-        // Manual mapping or BeanUtils (Jimmer entities are interfaces, but getters work)
+
+        // Manual mapping or BeanUtils (Jimmer entities are interfaces, but getters
+        // work)
         sysUserDTO.setId(sysUser.id());
         sysUserDTO.setUserName(sysUser.userName());
         sysUserDTO.setNickName(sysUser.nickName());
@@ -45,15 +45,16 @@ public class RemoteUserServiceImpl implements RemoteUserService {
         if (sysUser.dept() != null) {
             sysUserDTO.setDeptId(sysUser.dept().id());
         }
-        
+
         userInfoDTO.setSysUser(sysUserDTO);
-        
+
         Set<String> perms = menuService.selectPermsByUserId(sysUser.id());
         userInfoDTO.setPermissions(perms);
-        
-        // Roles are not yet fully implemented in SysUserService/SysMenuService to return Set<String> roleKeys
+
+        // Roles are not yet fully implemented in SysUserService/SysMenuService to
+        // return Set<String> roleKeys
         // For now, leave roles empty or implement selectRoleKeysByUserId
-        
+
         return userInfoDTO;
     }
 

@@ -28,7 +28,7 @@ public class TokenService {
     private static final String TOKEN_PREFIX = "Bearer ";
     // Redis key prefix
     private static final String LOGIN_TOKEN_KEY = "login_tokens:";
-    
+
     // Secret key (should be at least 256 bits)
     @Value("${token.secret:abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz}")
     private String secret;
@@ -64,7 +64,7 @@ public class TokenService {
         String token = UUID.randomUUID().toString();
         loginUser.setUserId(loginUser.getUser().id()); // Ensure ID is set
         refreshToken(loginUser);
-        
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("uuid", token);
         return createToken(claims);
@@ -128,7 +128,7 @@ public class TokenService {
     private String getTokenKey(String uuid) {
         return LOGIN_TOKEN_KEY + uuid;
     }
-    
+
     public void delLoginUser(String token) {
         if (StringUtils.hasText(token)) {
             String userKey = getTokenKey(token);

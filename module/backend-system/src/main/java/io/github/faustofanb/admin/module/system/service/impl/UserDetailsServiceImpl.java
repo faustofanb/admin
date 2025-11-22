@@ -1,13 +1,5 @@
 package io.github.faustofanb.admin.module.system.service.impl;
 
-import io.github.faustofanb.admin.module.system.domain.entity.SysDeptDraft;
-import io.github.faustofanb.admin.module.system.domain.entity.SysUser;
-import io.github.faustofanb.admin.module.system.domain.entity.SysUserDraft;
-import io.github.faustofanb.admin.module.system.model.LoginUser;
-import io.github.faustofanb.admin.rpc.api.system.RemoteUserService;
-import io.github.faustofanb.admin.rpc.api.model.SysUserDTO;
-import io.github.faustofanb.admin.rpc.api.model.UserInfoDTO;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +7,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import io.github.faustofanb.admin.module.system.domain.entity.SysUser;
+import io.github.faustofanb.admin.module.system.domain.entity.SysUserDraft;
+import io.github.faustofanb.admin.module.system.model.LoginUser;
+import io.github.faustofanb.admin.rpc.api.model.SysUserDTO;
+import io.github.faustofanb.admin.rpc.api.model.UserInfoDTO;
+import io.github.faustofanb.admin.rpc.api.system.RemoteUserService;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +47,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             draft.setNickName(userDto.getNickName());
             draft.setPassword(userDto.getPassword());
             draft.setStatus(userDto.getStatus());
-            if (userDto.getDeptId() != null) {
-                draft.setDept(SysDeptDraft.$.produce(dept -> dept.setId(userDto.getDeptId())));
-            }
+            draft.setDeptId(userDto.getDeptId());
         });
         return new LoginUser(user, userInfo.getPermissions());
     }

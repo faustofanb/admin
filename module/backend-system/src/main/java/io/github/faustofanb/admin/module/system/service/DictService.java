@@ -1,9 +1,8 @@
 package io.github.faustofanb.admin.module.system.service;
 
-import io.github.faustofanb.admin.module.system.domain.entity.SysDictData;
-import io.github.faustofanb.admin.module.system.domain.entity.SysDictType;
-
 import java.util.List;
+
+import io.github.faustofanb.admin.module.system.domain.entity.SysDictData;
 
 public interface DictService {
 
@@ -12,6 +11,6 @@ public interface DictService {
     void deleteDictTypeByIds(List<Long> ids);
 
     void deleteDictDataByIds(List<Long> ids);
-    
+
     // Add other CRUD methods as needed
 }
