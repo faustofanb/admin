@@ -1,43 +1,51 @@
 {
-	"name": "Admin System Dev Container",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-	"workspaceFolder": "/workspaces/admin",
-	"features": {
-		"ghcr.io/devcontainers/features/java:1": {
-			"version": "21",
-			"installMaven": "true",
-			"installGradle": "false"
-		},
-		"ghcr.io/devcontainers/features/node:1": {
-			"version": "20"
-		},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"vscjava.vscode-java-pack",
-				"vmware.vscode-boot-dev-pack",
-				"Vue.volar",
-				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode",
-				"tamasfe.even-better-toml",
-				"redhat.vscode-yaml",
-				"humao.rest-client"
-			],
-			"settings": {
-				"java.configuration.updateBuildConfiguration": "automatic",
-				"editor.formatOnSave": true
-			}
-		}
-	},
-	"forwardPorts": [
-		8080,
-		5173,
-		5432,
-		6379,
-		9876
-	],
-	"remoteUser": "vscode"
+    "name": "Admin System Dev Container",
+    "image": "mcr.microsoft.com/devcontainers/java:21",
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "20"
+        },
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "vmware.vscode-boot-dev-pack",
+                "Vue.volar",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "tamasfe.even-better-toml",
+                "redhat.vscode-yaml",
+                "humao.rest-client",
+                "codezombiech.gitignore",
+                "cweijan.vscode-office",
+                "donjayamanne.githistory",
+                "dotjoshjohnson.xml",
+                "mhutchie.git-graph",
+                "oderwat.indent-rainbow",
+                "vscjava.vscode-spring-boot-dashboard",
+                "vscjava.vscode-spring-initializr",
+                "ms-azuretools.vscode-containers"
+            ],
+            "settings": {
+                "java.configuration.updateBuildConfiguration": "automatic",
+                "editor.formatOnSave": true
+            }
+        }
+    },
+    "forwardPorts": [
+        8080,
+        5173,
+        5432,
+        6379,
+        9876,
+        10911,
+        10909,
+        7700,
+        9000,
+        9001
+    ],
+    "postStartCommand": "sudo chmod 666 /var/run/docker.sock",
+    "remoteUser": "vscode"
 }
