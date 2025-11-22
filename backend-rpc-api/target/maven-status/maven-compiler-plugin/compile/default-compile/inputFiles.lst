@@ -1,6 +1,0 @@
-/workspaces/admin/backend-rpc-api/src/main/java/io/github/faustofanb/admin/rpc/api/model/SysLogininforDTO.java
-/workspaces/admin/backend-rpc-api/src/main/java/io/github/faustofanb/admin/rpc/api/model/UserInfoDTO.java
-/workspaces/admin/backend-rpc-api/src/main/java/io/github/faustofanb/admin/rpc/api/model/SysOperLogDTO.java
-/workspaces/admin/backend-rpc-api/src/main/java/io/github/faustofanb/admin/rpc/api/system/RemoteLogService.java
-/workspaces/admin/backend-rpc-api/src/main/java/io/github/faustofanb/admin/rpc/api/system/RemoteUserService.java
-/workspaces/admin/backend-rpc-api/src/main/java/io/github/faustofanb/admin/rpc/api/model/SysUserDTO.java

@@ -1,6 +1,0 @@
-/workspaces/admin/backend-common/src/main/java/io/github/faustofanb/admin/common/context/AppContext.java
-/workspaces/admin/backend-common/src/main/java/io/github/faustofanb/admin/common/exception/BizException.java
-/workspaces/admin/backend-common/src/main/java/io/github/faustofanb/admin/common/exception/ErrorCode.java
-/workspaces/admin/backend-common/src/main/java/io/github/faustofanb/admin/common/model/Result.java
-/workspaces/admin/backend-common/src/main/java/io/github/faustofanb/admin/common/util/JsonUtils.java
-/workspaces/admin/backend-common/src/main/java/io/github/faustofanb/admin/common/exception/BizErrorCode.java

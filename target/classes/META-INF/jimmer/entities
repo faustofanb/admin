@@ -1,8 +1,0 @@
-io.github.faustofanb.admin.module.system.domain.entity.SysConfig
-io.github.faustofanb.admin.module.system.domain.entity.SysDept
-io.github.faustofanb.admin.module.system.domain.entity.SysDictData
-io.github.faustofanb.admin.module.system.domain.entity.SysDictType
-io.github.faustofanb.admin.module.system.domain.entity.SysMenu
-io.github.faustofanb.admin.module.system.domain.entity.SysPost
-io.github.faustofanb.admin.module.system.domain.entity.SysRole
-io.github.faustofanb.admin.module.system.domain.entity.SysUser
