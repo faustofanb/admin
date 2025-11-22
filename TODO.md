@@ -5,6 +5,7 @@
 ---
 
 ## 一、基础项目骨架
+
 - [ ] 1. 创建 Maven 多模块工程骨架
   - 根 `pom.xml`：设定 Java 21、Spring Boot 3、依赖管理（Spring Cloud / Dubbo / Jimmer / Testcontainers 等版本）。
   - 子模块：
@@ -14,6 +15,7 @@
     - `transaction-support`
     - `rpc-api`
     - `rpc-impl`
+    - `gateway` (Spring Cloud Gateway)
     - `module/user-tenant-permission`
     - `module/resource`
     - `module/excel`
@@ -34,6 +36,7 @@
   - 配置 `spring.flyway.*`，确保项目启动时自动迁移。
 
 ## 二、基础设施与通用组件
+
 - [ ] 4. 定义 AppContext 与上下文传播机制
   - 在 `common` 中创建 `AppContext` record（tenantId/userId/requestId/traceId）。
   - 创建 `AppContextHolder`（ThreadLocal 封装 + 虚拟线程安全用法）。
@@ -55,8 +58,12 @@
   - 引入 OTel SDK（或 Spring OTel Starter）。
   - 配置 HTTP server span、JDBC span、Redis span。
   - 实现一个简单的 tracing filter，将 traceId 写入 AppContext 与 MDC。
+- [ ] 8. WebSocket 与 SSE 基础支持
+  - 在 `gateway` 或 `common` 中配置 WebSocket 路由转发。
+  - 提供 SSE (Server-Sent Events) 工具类，用于向前端推送进度。
 
 ## 三、安全与认证授权
+
 - [ ] 8. Spring Security 基础配置
   - 配置无状态 JWT 鉴权过滤器链。
   - 保护 `/api/v1/**` 需要认证，`/auth/**` 匿名允许。
@@ -75,6 +82,7 @@
   - 提供一个 PermissionEvaluator 或自定义注解，用于检查权限码（如 `perm:sys:user:list`）。
 
 ## 四、多租户 & 数据访问
+
 - [ ] 12. 集成 Jimmer 实体与基础仓储
   - 根据迁移脚本创建 Jimmer 实体（tenant/user/role/permission/menu/resource/import_task 等）。
   - 提供通用 BaseRepository（支持 `tenant_id` 自动注入 / 过滤）。
@@ -84,6 +92,7 @@
     - 确保 agent 在 repository 中不需要每处都手写 tenantId 条件。
 
 ## 五、Outbox 与事件总线
+
 - [ ] 14. Outbox 实体与仓储
   - 基于 `t_outbox` 建立 Jimmer 实体。
   - 定义 OutboxRepository 接口，支持：
@@ -105,6 +114,7 @@
       - 更新状态与 retry_count。
 
 ## 六、业务模块接口骨架
+
 - [ ] 18. User/Tenant/Permission REST 接口骨架
   - 创建以下 Controller（仅签名与基本参数校验，内部先 TODO）：
     - `/api/v1/tenants`：列表、创建、详情、更新、删除。
@@ -113,15 +123,18 @@
     - `/api/v1/permissions`：权限查询。
 - [ ] 19. Resource 模块接口骨架
   - 在 `module/resource`：
+    - 定义 `BlobStorage` 接口（上传/下载/删除）。
+    - 实现 `MinioStorage` 或 `S3Storage` 适配器。
     - `POST /api/v1/resources/upload`（multipart，返回 ResourceDTO）。
     - `GET /api/v1/resources/{id}`（元数据）。
-    - `GET /api/v1/resources/{id}/download`（文件流，先 stub）。
-  - 定义 `ResourceService` 接口（包含上传/下载/逻辑删除方法）。
+    - `GET /api/v1/resources/{id}/download`（文件流）。
+  - 定义 `ResourceService` 接口。
 - [ ] 20. Excel 模块接口骨架
   - 在 `module/excel`：
     - `POST /api/v1/excel/import`（multipart 上传 Excel，返回 ImportTaskDTO）。
     - `GET /api/v1/excel/import/tasks/{taskId}`（任务状态）。
-  - 定义 `ExcelImportService`（创建任务 + 调用 EasyExcel 解析的入口，后续详细实现）。
+    - `GET /api/v1/excel/progress/{taskId}` (SSE 端点，用于实时进度推送)。
+  - 定义 `ExcelImportService`。
 - [ ] 21. 调度管理接口骨架
   - 在 `module/scheduler`：
     - `GET /api/v1/schedules`（分页查看）
@@ -133,6 +146,7 @@
     - `GET /api/v1/logs/audit`：根据时间范围/动作查询 `t_audit_action`。
 
 ## 七、限流与缓存
+
 - [ ] 23. 接入 Redis/Redisson
   - 配置 RedissonClient Bean。
   - 提供简单封装：
@@ -144,6 +158,7 @@
   - 给关键接口加 `@SentinelResource` 注解与 blockHandler 模板。
 
 ## 八、可观测性与指标埋点
+
 - [ ] 25. 统一封装业务指标
   - 在 `infra-integration` 中：
     - 提供 `MetricsRecorder`（封装 Micrometer）：
@@ -157,6 +172,7 @@
     - 在登录、用户修改、资源操作等地方统一调用。
 
 ## 九、测试与 CI 支撑骨架
+
 - [ ] 27. 引入测试依赖和基础配置
   - 在父 POM 配置：
     - JUnit 5、AssertJ、Mockito、Testcontainers、Spring Boot Test。
@@ -170,6 +186,7 @@
   - 将测试报告/覆盖率作为工件输出（Jacoco）。
 
 ## 十、对接 OpenAPI 文档
+
 - [ ] 30. 接入 Springdoc 或 Swagger
   - 使用 springdoc-openapi-starter-webmvc-ui。
   - 绑定已有 `docs/api/openapi.yaml`：
@@ -177,4 +194,5 @@
   - 确保主要接口（login/tenants/users/resources/excel/import 等）都有注释信息（@Operation/@Parameter）。
 
 ---
+
 > 提示：你可以按上述编号，逐个给 AI agent 提任务。

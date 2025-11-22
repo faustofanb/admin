@@ -39,9 +39,11 @@
   - Redis + Redisson（缓存 / 分布式锁 / 限流器）
   - RocketMQ（事件总线）
   - Seata（分布式事务预备）
-  - RustFS（资源存储）
+  - RustFS / MinIO / S3（统一 BlobStorage 抽象）
   - PowerJob（任务调度）
   - Sentinel（限流 / 熔断）
+  - Spring Cloud Gateway（API 网关）
+  - WebSocket / SSE（实时进度推送）
 - 可观测性
   - Promtail + Loki + Grafana（日志）
   - Micrometer + Prometheus（指标）
@@ -53,7 +55,12 @@
 
 ```text
 [ 前端：Vben Admin ]
-        │ REST / JSON
+        │ REST / JSON / WebSocket
+        ▼
+[ 网关层：Spring Cloud Gateway ]
+  ├─ 认证 / 限流 / 路由
+  └─ SSE 推送通道
+        │
         ▼
 [ 接口层 ]
   ├─ REST Controller
@@ -130,7 +137,8 @@ com.example.app.<module>
 - JWT（Access/Refresh），claims 中包含 `sub`（userId）、`tid`（tenantId）、`roles`、`scopes`
 - RBAC + 可扩 ABAC
 - 多租户隔离：
-  - 所有业务表含 `tenant_id`
+  - 默认共享 Schema（`tenant_id` 隔离）
+  - 支持混合模式：关键租户可配置独立 Schema 或 Database（通过动态数据源路由）
   - AppContext(tenantId,userId,requestId,traceId) 贯穿 HTTP / RPC / 任务
   - 缓存 Key 与限流规则均加租户维度
 - 审计：
@@ -145,6 +153,8 @@ com.example.app.<module>
 - PostgreSQL：
   - 读写分离（主写从读）
   - 键集分页 / 覆盖索引 / 避免深度 offset
+- 并发控制：
+  - 聚合根强制启用 `@Version` 乐观锁，防止并发覆写
 - 缓存：
   - 本地 Caffeine + Redis/Redisson 多级缓存
 - 限流与降级：
@@ -155,8 +165,9 @@ com.example.app.<module>
 ### 4.3 分布式事务与一致性（第 4 章）
 
 - 默认模式：本地事务 + Outbox + RocketMQ → 最终一致
-- `t_outbox` 表记录待发事件：
-  - 出站任务扫描 `status=NEW/RETRYING` → MQ → 标记 SENT/FAILED
+- 优化方案：
+  - 优先使用 RocketMQ 事务消息（Transaction Message），省去 Outbox 表轮询，实现零延迟
+  - 兜底方案：`t_outbox` 表 + CDC/定时扫描（针对不支持事务消息的场景）
 - 消费端必须幂等：
   - 业务去重键 / Redis SetNX / 去重表
 - Seata：
@@ -175,10 +186,11 @@ com.example.app.<module>
 
 ### 4.5 资源与文件管理（第 6 章）
 
+- 存储抽象：
+  - 定义 `BlobStorage` 接口，实现 S3/MinIO/RustFS 适配，避免绑定特定厂商
 - 元数据表 `t_resource_meta`（租户 + storeKey + sha256 + ACL 等）
-- RustFS 存储文件内容
 - 上传：
-  - 计算 sha256 → 分布式锁 → 查重（秒传） → RustFS 写入 → 元数据入库 → 事件 `ResourceUploaded`
+  - 计算 sha256 → 分布式锁 → 查重（秒传） → BlobStorage 写入 → 元数据入库 → 事件 `ResourceUploaded`
 - 下载：
   - ACL 校验（private/public/role-based） → 签名 URL 或流式返回
 - 清理：
@@ -190,7 +202,7 @@ com.example.app.<module>
   - JSON 格式 → 文件 → Promtail → Loki → Grafana
   - 包含 ts / level / logger / traceId / tenantId / userId / path / latency / err
 - 指标（Micrometer → Prometheus）：
-  - http.server.requests / jvm.* / 自定义业务指标
+  - http.server.requests / jvm.\* / 自定义业务指标
 - Trace（OpenTelemetry）：
   - HTTP / Dubbo / RocketMQ / PowerJob / LiteFlow 全链路追踪
 - 提供多套 Grafana Dashboard 和告警规则
@@ -217,13 +229,17 @@ com.example.app.<module>
   - 分批事务写库 + 错误行记录 + 错误报告导出（资源模块）
 - 导出：
   - 分页查询 + EasyExcel 写出 → 可上传到资源模块
+- 进度反馈：
+  - 导入/导出任务通过 WebSocket 或 SSE (Server-Sent Events) 实时推送进度条
+  - 前端监听 `task:{taskId}` 频道更新 UI
 - 限流：
   - 每租户导入频率限流（Redisson RateLimiter + Sentinel）
 
 ### 4.9 RPC 与接口契约（第 10 章）
 
 - `rpc-api`：统一 Dubbo 契约与 DTO
-- 初期协议：`injvm`（单体内调用），未来可切为远程协议 + 注册中心
+- 初期协议：`injvm`（单体内调用），配置“引用传递 (Pass by Reference)”避免序列化开销
+- 未来演进：可无缝切为 Dubbo 远程协议 + 注册中心
 - 典型 Facade：
   - `UserTenantPermissionFacade`
   - `ResourceFacade`
@@ -235,7 +251,9 @@ com.example.app.<module>
 
 ### 4.10 事件总线与异步处理（第 11 章）
 
-- Outbox + RocketMQ 统一事件总线
+- 事件分层：
+  - **领域事件 (Domain Event)**：JVM 内部 Spring Event，事务内/后同步执行，解耦模块内逻辑
+  - **集成事件 (Integration Event)**：跨服务边界，走 Outbox/事务消息 + RocketMQ
 - Topic：
   - `user.events` / `tenant.events` / `resource.events` / `permission.events` / `excel.events`
 - 出站任务：批量从 `t_outbox` 读取 → 发送 RocketMQ → 更新状态
@@ -278,7 +296,7 @@ com.example.app.<module>
   - Dubbo RPC + 事件总线
   - 统一 API Gateway/BFF
   - Outbox/事件一致性
-  实现平滑迁移
+    实现平滑迁移
 
 ---
 
