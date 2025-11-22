@@ -19,10 +19,14 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       # POSTGRES_DB: admin_db # Removed because we create multiple DBs in init script
+    ports:
+      - "5432:5432"
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
 

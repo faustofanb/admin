@@ -1,5 +1,7 @@
 package io.github.faustofanb.admin.module.audit.service.impl;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 
 import io.github.faustofanb.admin.module.audit.domain.entity.SysOperLog;
@@ -21,5 +23,10 @@ public class SysOperLogServiceImpl implements SysOperLogService {
     @Override
     public void cleanLog() {
         sysOperLogRepository.deleteAll();
+    }
+
+    @Override
+    public int cleanLogBefore(LocalDateTime time) {
+        return sysOperLogRepository.deleteByOperTimeBefore(time);
     }
 }

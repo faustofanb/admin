@@ -11,7 +11,7 @@
 - [x] **Phase 5: 网关与 RPC (Gateway & RPC)**
 - [x] **Phase 6: 文件服务 (File)**
 - [x] **Phase 7: 审计日志 (Audit)**
-- [ ] **Phase 8: 批处理与调度 (Batch & Schedule)**
+- [x] **Phase 8: 批处理与调度 (Batch & Schedule)**
 - [ ] **Phase 9: 启动与整合 (Boot)**
 
 ---
@@ -141,8 +141,12 @@
 
 > 对应文档: `doc/todo/08_batch_schedule.md`
 
-- [ ] **8.1 PowerJob 集成**
-- [ ] **8.2 Excel 导入导出**
+- [x] **8.1 批处理**
+  - [x] EasyExcel 集成
+  - [x] `ExcelUtils` 工具类
+- [x] **8.2 任务调度**
+  - [x] PowerJob Worker 集成
+  - [x] `LogCleanupProcessor` (日志清理任务)
 
 ### Phase 9: 启动与整合 (Boot)
 
