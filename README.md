@@ -100,25 +100,26 @@
 
 ```text
 pom.xml (parent)
- ├─ common/                 # 通用：异常、DTO/VO、AppContext、工具
- ├─ core/                   # 领域模型、命令/查询、领域服务、事件
- ├─ infra-integration/      # Redis、RocketMQ、Sentinel、监控、OTel 封装
- ├─ transaction-support/    # Seata、Outbox、一致性工具
- ├─ rpc-api/                # Dubbo 契约接口 + DTO
- ├─ rpc-impl/               # Dubbo Provider 实现（调用应用服务）
+ ├─ backend-common/         # 通用：异常、DTO/VO、AppContext、工具
+ ├─ backend-core/           # 领域模型、命令/查询、领域服务、事件
+ ├─ backend-infra/          # Redis、RocketMQ、Sentinel、监控、OTel 封装
+ ├─ backend-transaction/    # Seata、Outbox、一致性工具
+ ├─ backend-rpc-api/        # Dubbo 契约接口 + DTO
+ ├─ backend-rpc-impl/       # Dubbo Provider 实现（调用应用服务）
+ ├─ backend-gateway/        # Spring Cloud Gateway 网关
+ ├─ backend-boot/           # 启动入口
  └─ module/
-     ├─ user-tenant-permission/  # 用户/租户/组织/菜单/角色/权限
-     ├─ resource/                # 资源与文件管理（RustFS）
-     ├─ excel/                   # Excel 导入/导出
-     ├─ scheduler/               # 任务调度（PowerJob Worker & 任务模型）
-     ├─ logging/                 # 日志 / 审计查询 API（封装 Loki/DB）
-     └─ flow-engine/             # LiteFlow 流程编排（可选）
+     ├─ backend-system/             # 用户/租户/组织/菜单/角色/权限
+     ├─ backend-file/            # 资源与文件管理（RustFS）
+     ├─ backend-batch/           # Excel 导入/导出
+     ├─ backend-schedule/        # 任务调度（PowerJob Worker & 任务模型）
+     └─ backend-audit/           # 日志 / 审计查询 API（封装 Loki/DB）
 ```
 
 每个业务模块内部一般结构：
 
 ```text
-com.example.app.<module>
+io.github.faustofan.admin.<module>
   ├─ app        # 应用层：command / query
   ├─ domain     # 领域层：model / service / event
   ├─ infra      # 基础设施：repository / client / mq 等
@@ -290,7 +291,7 @@ com.example.app.<module>
 
 - 阶段 0：单体稳定期（当前）
 - 阶段 1：拆 Resource / Logging 为独立服务
-- 阶段 2：拆 IAM（user-tenant-permission）为 `iam-service`
+- 阶段 2：拆 system（system）为 `system-service`
 - 阶段 3：拆 Flow / Excel 等扩展服务
 - 通过：
   - Dubbo RPC + 事件总线
@@ -315,7 +316,7 @@ com.example.app.<module>
 ├─ rpc-api/
 ├─ rpc-impl/
 ├─ module/
-│  ├─ user-tenant-permission/
+│  ├─ system/
 │  ├─ resource/
 │  ├─ excel/
 │  ├─ scheduler/

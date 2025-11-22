@@ -1,198 +1,281 @@
-# Project TODO List
+# Project Implementation TODO List
 
-下面这份待办清单是专门给“AI coding agent/写代码机器人”用的，尽量拆成清晰的小任务，便于你后面把它们变成具体 PR 或工具调用。你可以按模块分配，也可以一条条喂给 agent。
-
----
-
-## 一、基础项目骨架
-
-- [ ] 1. 创建 Maven 多模块工程骨架
-  - 根 `pom.xml`：设定 Java 21、Spring Boot 3、依赖管理（Spring Cloud / Dubbo / Jimmer / Testcontainers 等版本）。
-  - 子模块：
-    - `common`
-    - `core`
-    - `infra-integration`
-    - `transaction-support`
-    - `rpc-api`
-    - `rpc-impl`
-    - `gateway` (Spring Cloud Gateway)
-    - `module/user-tenant-permission`
-    - `module/resource`
-    - `module/excel`
-    - `module/scheduler`
-    - `module/logging`
-    - `module/flow-engine`（可选）
-  - 配置父子模块依赖关系（哪些只依赖接口，避免循环依赖）。
-- [ ] 2. 创建 Spring Boot 启动模块
-  - 建立主应用（如 `app-boot` 或直接在根启动）
-  - 配置基础：
-    - 数据源（PostgreSQL）
-    - Redis
-    - Web（Spring MVC）
-    - Actuator
-    - Flyway（指向 `db/migrations`）
-- [ ] 3. 接入 Flyway 并加载已有迁移脚本
-  - 将 `V1__init_core_schema.sql` ~ `V4__init_powerjob_tables.sql` 放入 `src/main/resources/db/migrations`。
-  - 配置 `spring.flyway.*`，确保项目启动时自动迁移。
-
-## 二、基础设施与通用组件
-
-- [ ] 4. 定义 AppContext 与上下文传播机制
-  - 在 `common` 中创建 `AppContext` record（tenantId/userId/requestId/traceId）。
-  - 创建 `AppContextHolder`（ThreadLocal 封装 + 虚拟线程安全用法）。
-  - 定义一个 Servlet Filter：
-    - 从 JWT/请求头读取用户与租户信息；
-    - 生成 requestId；
-    - 关联 traceId；
-    - 设置到 AppContextHolder。
-- [ ] 5. 接入日志（Logback）与 JSON 输出
-  - 定义统一日志格式（包含 traceId/tenantId/userId 等字段）。
-  - 提供 Logback 配置：
-    - 控制台 + 滚动文件；
-    - 使用 logstash-logback-encoder 输出 JSON。
-- [ ] 6. 接入 Prometheus 指标与 Actuator
-  - 在主应用中引入 micrometer-registry-prometheus。
-  - 开启 `/actuator/prometheus`。
-  - 设置默认 tag：`application`、`env`。
-- [ ] 7. OpenTelemetry 基础配置
-  - 引入 OTel SDK（或 Spring OTel Starter）。
-  - 配置 HTTP server span、JDBC span、Redis span。
-  - 实现一个简单的 tracing filter，将 traceId 写入 AppContext 与 MDC。
-- [ ] 8. WebSocket 与 SSE 基础支持
-  - 在 `gateway` 或 `common` 中配置 WebSocket 路由转发。
-  - 提供 SSE (Server-Sent Events) 工具类，用于向前端推送进度。
-
-## 三、安全与认证授权
-
-- [ ] 8. Spring Security 基础配置
-  - 配置无状态 JWT 鉴权过滤器链。
-  - 保护 `/api/v1/**` 需要认证，`/auth/**` 匿名允许。
-- [ ] 9. JWT 工具类与配置
-  - 在 `common` 或 `infra-integration`：
-    - 定义生成/解析 JWT 的服务：支持 AccessToken/RefreshToken。
-    - JWT claims 至少包含 `sub`、`tid`、`roles`、`scopes`。
-    - 提供密钥配置与 keyId(kid) 支持。
-- [ ] 10. 登录/刷新/登出接口骨架
-  - 在 `user-tenant-permission` 的 adapter.rest 中：
-    - `POST /auth/login`（返回 Access/RefreshToken）。
-    - `POST /auth/refresh`。
-  - 对接用户表（先用简单实现或 stub）。
-- [ ] 11. 方法级权限注解与权限检查
-  - 全局启用 `@PreAuthorize`。
-  - 提供一个 PermissionEvaluator 或自定义注解，用于检查权限码（如 `perm:sys:user:list`）。
-
-## 四、多租户 & 数据访问
-
-- [ ] 12. 集成 Jimmer 实体与基础仓储
-  - 根据迁移脚本创建 Jimmer 实体（tenant/user/role/permission/menu/resource/import_task 等）。
-  - 提供通用 BaseRepository（支持 `tenant_id` 自动注入 / 过滤）。
-- [ ] 13. 全局多租户过滤器
-  - 在 Jimmer 配置中注册逻辑删除/多租户过滤器：
-    - 每次查询自动加上当前 `tenant_id`。
-    - 确保 agent 在 repository 中不需要每处都手写 tenantId 条件。
-
-## 五、Outbox 与事件总线
-
-- [ ] 14. Outbox 实体与仓储
-  - 基于 `t_outbox` 建立 Jimmer 实体。
-  - 定义 OutboxRepository 接口，支持：
-    - 保存事件记录（NEW）；
-    - 按批量查询待发送记录；
-    - 标记 SENT/RETRYING/FAILED。
-- [ ] 15. 统一 IntegrationEvent 构造工具
-  - 定义一个 `IntegrationEvent` 类和序列化工具（Jackson）。
-  - 提供从领域事件 → IntegrationEvent → OutboxRecord 的转换服务。
-- [ ] 16. RocketMQ Producer 基础封装
-  - 在 `infra-integration` 中：
-    - 配置 RocketMQTemplate 或官方 Producer。
-    - 封装一个 `EventPublisher`，根据事件类型决定 Topic/Tag。
-- [ ] 17. Outbox 出站任务实现（PowerJob Processor 或定时任务）
-  - 在 `scheduler` 模块中：
-    - 创建 `OutboxDispatchProcessor`：
-      - 批量拉取 NEW/RETRYING 记录；
-      - 调用 MQ 发送；
-      - 更新状态与 retry_count。
-
-## 六、业务模块接口骨架
-
-- [ ] 18. User/Tenant/Permission REST 接口骨架
-  - 创建以下 Controller（仅签名与基本参数校验，内部先 TODO）：
-    - `/api/v1/tenants`：列表、创建、详情、更新、删除。
-    - `/api/v1/users`：分页查询、创建、详情、更新、删除。
-    - `/api/v1/roles`：角色列表、创建、关联权限。
-    - `/api/v1/permissions`：权限查询。
-- [ ] 19. Resource 模块接口骨架
-  - 在 `module/resource`：
-    - 定义 `BlobStorage` 接口（上传/下载/删除）。
-    - 实现 `MinioStorage` 或 `S3Storage` 适配器。
-    - `POST /api/v1/resources/upload`（multipart，返回 ResourceDTO）。
-    - `GET /api/v1/resources/{id}`（元数据）。
-    - `GET /api/v1/resources/{id}/download`（文件流）。
-  - 定义 `ResourceService` 接口。
-- [ ] 20. Excel 模块接口骨架
-  - 在 `module/excel`：
-    - `POST /api/v1/excel/import`（multipart 上传 Excel，返回 ImportTaskDTO）。
-    - `GET /api/v1/excel/import/tasks/{taskId}`（任务状态）。
-    - `GET /api/v1/excel/progress/{taskId}` (SSE 端点，用于实时进度推送)。
-  - 定义 `ExcelImportService`。
-- [ ] 21. 调度管理接口骨架
-  - 在 `module/scheduler`：
-    - `GET /api/v1/schedules`（分页查看）
-    - `POST /api/v1/schedules`（创建任务）
-    - `PUT /api/v1/schedules/{id}/enable`/`disable`
-    - `POST /api/v1/schedules/{id}/runOnce`
-- [ ] 22. 审计查询接口骨架
-  - 在 `module/logging`：
-    - `GET /api/v1/logs/audit`：根据时间范围/动作查询 `t_audit_action`。
-
-## 七、限流与缓存
-
-- [ ] 23. 接入 Redis/Redisson
-  - 配置 RedissonClient Bean。
-  - 提供简单封装：
-    - `CacheService`（高频 KV 读写）
-    - `LockService`（获取/释放分布式锁）。
-- [ ] 24. Sentinel 集成与基本规则加载
-  - 集成 Sentinel Web 适配（Spring Cloud Alibaba 或官方 Starter）。
-  - 编写一个简单配置类，将常用资源名注册（如登录接口、上传接口）。
-  - 给关键接口加 `@SentinelResource` 注解与 blockHandler 模板。
-
-## 八、可观测性与指标埋点
-
-- [ ] 25. 统一封装业务指标
-  - 在 `infra-integration` 中：
-    - 提供 `MetricsRecorder`（封装 Micrometer）：
-      - 资源上传次数与时延；
-      - Excel 导入次数与时延；
-      - Outbox 出站次数等。
-    - 在对应 Service 中插入计时/计数调用。
-- [ ] 26. 审计写入封装
-  - 创建 `AuditService`：
-    - 对外暴露 `recordAction(tenantId, userId, action, targetType, targetId, detail)`。
-    - 在登录、用户修改、资源操作等地方统一调用。
-
-## 九、测试与 CI 支撑骨架
-
-- [ ] 27. 引入测试依赖和基础配置
-  - 在父 POM 配置：
-    - JUnit 5、AssertJ、Mockito、Testcontainers、Spring Boot Test。
-- [ ] 28. 编写至少一个示例单元测试 & 集成测试
-  - 如：
-    - User 聚合的领域测试；
-    - 简单 REST Controller 集成测试（MockMvc）+ H2 或 Testcontainers PostgreSQL。
-- [ ] 29. 配置 GitHub Actions 或 CI 脚本骨架
-  - `mvn -B -ntp verify`
-  - Flyway migrate + 测试
-  - 将测试报告/覆盖率作为工件输出（Jacoco）。
-
-## 十、对接 OpenAPI 文档
-
-- [ ] 30. 接入 Springdoc 或 Swagger
-  - 使用 springdoc-openapi-starter-webmvc-ui。
-  - 绑定已有 `docs/api/openapi.yaml`：
-    - 配置 `/v3/api-docs` 与 `/swagger-ui.html`。
-  - 确保主要接口（login/tenants/users/resources/excel/import 等）都有注释信息（@Operation/@Parameter）。
+This document outlines the step-by-step implementation plan for the Multi-Tenant Admin System.
+**Note to AI Agents:** Follow these steps sequentially. Each step contains a specific prompt to be used for execution.
 
 ---
 
-> 提示：你可以按上述编号，逐个给 AI agent 提任务。
+## Phase 1: Foundation (Common, Core, Infra)
+
+### 1.1 Setup `backend-common`
+
+- **Goal**: Establish common utilities, DTOs, and context holders.
+- **Details**:
+  - Create `io.github.faustofanb.admin.common.model.Result<T>` (Standard API response).
+  - Create `io.github.faustofanb.admin.common.context.AppContext` (Holds `tenantId`, `userId`, `traceId` using `ThreadLocal`).
+  - Create `io.github.faustofanb.admin.common.exception.BizException` and `ErrorCode` enum.
+  - Create `io.github.faustofanb.admin.common.util.JsonUtils` (Jackson wrapper).
+- **AI Prompt**:
+  ```text
+  Implement the basic infrastructure in `backend-common`.
+  1. Create a generic `Result<T>` class for API responses with fields: code, message, data, traceId.
+  2. Create an `AppContext` class using `TransmittableThreadLocal` to store current request context (tenantId, userId, username, roles). Add static methods to get/set/clear.
+  3. Create a `BizException` runtime exception and a global `ErrorCode` interface/enum.
+  4. Configure Jackson `ObjectMapper` in a utility class `JsonUtils` to handle Java 8 dates (JSR310) and ignore null values.
+  ```
+
+### 1.2 Setup `backend-core` (DDD Base)
+
+- **Goal**: Define base classes for DDD and Jimmer.
+- **Details**:
+  - Define `BaseEntity` interface (Jimmer) with `createdTime`, `updatedTime`.
+  - Define `AggregateRoot` marker interface.
+  - Define `DomainEvent` abstract class (fields: `eventId`, `occurredOn`, `tenantId`).
+- **AI Prompt**:
+  ```text
+  Set up the DDD base classes in `backend-core`.
+  1. Create a `BaseEntity` interface compatible with Jimmer ORM, including standard audit fields (`created_time`, `updated_time`, `created_by`, `updated_by`).
+  2. Create a `DomainEvent` base class for the Event Bus, containing `eventId` (UUID), `occurredOn` (LocalDateTime), and `tenantId`.
+  3. Create a `Command` and `Query` marker interface for CQRS pattern.
+  ```
+
+### 1.3 Setup `backend-infra` (Middleware Integration)
+
+- **Goal**: Configure Redis, Redisson, and basic Web MVC config.
+- **Details**:
+  - Configure `RedissonClient` bean.
+  - Create `RedisUtils` helper.
+  - Global Exception Handler (`@RestControllerAdvice`).
+  - Jackson Configuration (Spring Boot config).
+- **AI Prompt**:
+  ```text
+  Implement infrastructure configurations in `backend-infra`.
+  1. Create a `RedissonConfig` class to initialize `RedissonClient` from `application.yml`.
+  2. Create a `GlobalExceptionHandler` using `@RestControllerAdvice` to handle `BizException` and standard exceptions, returning `Result.fail()`.
+  3. Ensure `backend-infra` depends on `backend-common`.
+  ```
+
+---
+
+## Phase 2: system Module (Identity & Access Management)
+
+### 2.1 system Domain Layer (Jimmer Entities)
+
+- **Goal**: Define `User`, `Tenant`, `Role`, `Permission` entities.
+- **Ref**: `doc/design/2.安全设计详细说明.md`
+- **Details**:
+  - `Tenant`: id, name, code, status, expire_time.
+  - `User`: id, tenant_id, username, password_hash, email, phone, status.
+  - `Role`: id, tenant_id, code, name.
+  - `Permission`: id, code, name, type (MENU/BUTTON).
+  - Associations: User-Role (Many-to-Many), Role-Permission (Many-to-Many).
+- **AI Prompt**:
+  ```text
+  Implement the system domain layer in `module/backend-system` using Jimmer.
+  1. Create `Tenant` entity.
+  2. Create `User` entity with a unique constraint on `(tenant_id, username)`.
+  3. Create `Role` and `Permission` entities.
+  4. Define Many-to-Many relationships: `User` <-> `Role`, `Role` <-> `Permission`.
+  5. Ensure all entities implement `BaseEntity` from `backend-core`.
+  ```
+
+### 2.2 system Infrastructure Layer (Repositories)
+
+- **Goal**: Create Jimmer Repositories.
+- **Details**:
+  - `UserRepository`, `TenantRepository`, etc.
+  - Implement `findByUsername(tenantId, username)`.
+- **AI Prompt**:
+  ```text
+  Create Jimmer repositories in `module/backend-system`.
+  1. Create `UserRepository` extending `JRepository<User, Long>`. Add method `findByTenantIdAndUsername`.
+  2. Create `TenantRepository`, `RoleRepository`, `PermissionRepository`.
+  ```
+
+### 2.3 system Security Implementation (Spring Security + JWT)
+
+- **Goal**: Secure the application.
+- **Ref**: `doc/design/2.安全设计详细说明.md`
+- **Details**:
+  - `JwtTokenProvider`: Generate/Validate tokens (HS256).
+  - `JwtAuthenticationFilter`: Parse token -> Populate `SecurityContext` & `AppContext`.
+  - `UserDetailsServiceImpl`: Load user from DB.
+  - `SecurityConfig`: Chain configuration (disable CSRF, stateless session).
+- **AI Prompt**:
+  ```text
+  Implement Spring Security in `module/backend-system`.
+  1. Create `JwtTokenProvider` to generate tokens with claims: `sub` (userId), `tid` (tenantId), `roles`.
+  2. Implement `CustomUserDetailsService` to load user data from `UserRepository`.
+  3. Create `JwtAuthenticationFilter` to intercept requests, validate JWT, and set `SecurityContextHolder` AND `AppContext`.
+  4. Configure `SecurityFilterChain` to allow public access to `/auth/login` and require authentication for others.
+  ```
+
+### 2.4 system Application & Interface Layer
+
+- **Goal**: Login and User Management APIs.
+- **Details**:
+  - `AuthService`: Handle login (password check), return Token.
+  - `AuthController`: POST `/auth/login`.
+  - `UserController`: CRUD for users.
+- **AI Prompt**:
+  ```text
+  Implement system application logic and REST APIs.
+  1. Create `AuthService` with a `login(LoginCommand cmd)` method. Verify password using BCrypt. Return JWT.
+  2. Create `AuthController` exposing `/auth/login`.
+  3. Create `UserController` with basic CRUD methods. Ensure all write operations use `@Transactional`.
+  ```
+
+---
+
+## Phase 3: Gateway & RPC
+
+### 3.1 RPC API Definition
+
+- **Goal**: Define interfaces for cross-module communication.
+- **Ref**: `doc/design/10.RPC与服务调用.md`
+- **Details**:
+  - `backend-rpc-api`: `UserRpcService`, `TenantRpcService`.
+  - DTOs: `UserDTO`, `TenantDTO`.
+- **AI Prompt**:
+  ```text
+  Define RPC interfaces in `backend-rpc-api`.
+  1. Create `UserDTO` and `TenantDTO` (POJOs).
+  2. Create `UserRpcService` interface with methods: `getUserById(Long tenantId, Long userId)`, `validateTenant(Long tenantId)`.
+  ```
+
+### 3.2 RPC Implementation
+
+- **Goal**: Implement RPC interfaces in `backend-rpc-impl`.
+- **Details**:
+  - Implement `UserRpcService` using `UserRepository` (or `UserService`).
+  - Use `@DubboService` (or Spring Bean if In-JVM).
+- **AI Prompt**:
+  ```text
+  Implement RPC services in `backend-rpc-impl`.
+  1. Create `UserRpcServiceImpl` implementing `UserRpcService`.
+  2. Inject `UserRepository` from `backend-system` (ensure module dependency is set) to fetch data and map to DTOs.
+  ```
+
+### 3.3 Gateway Configuration
+
+- **Goal**: Setup Spring Cloud Gateway.
+- **Details**:
+  - Route configuration (forward `/api/system/**` to `backend-boot`).
+  - Global Filter: Extract JWT from header, validate (optional at gateway), pass to downstream.
+- **AI Prompt**:
+  ```text
+  Configure `backend-gateway`.
+  1. Add dependencies for Spring Cloud Gateway.
+  2. Configure `application.yml` to route paths like `/api/**` to the backend service (lb://admin-backend).
+  3. Implement a Global Filter to log request paths and potentially validate JWT structure (lightweight check).
+  ```
+
+---
+
+## Phase 4: Resource Module (File Management)
+
+### 4.1 Resource Domain
+
+- **Goal**: Manage file metadata.
+- **Ref**: `doc/design/6.资源与文件管理.md`
+- **Details**:
+  - Entity `ResourceMeta`: `tenantId`, `storeKey`, `sha256`, `status` (UPLOADING, ACTIVE).
+- **AI Prompt**:
+  ```text
+  Implement Resource domain in `module/backend-file`.
+  1. Create `ResourceMeta` entity with fields: `originalName`, `storeKey`, `mimeType`, `size`, `sha256`, `status` (Enum), `tenantId`.
+  2. Create `ResourceRepository`.
+  ```
+
+### 4.2 Storage Abstraction
+
+- **Goal**: Abstract file storage.
+- **Details**:
+  - Interface `BlobStorage`: `upload(key, stream)`, `getUrl(key)`.
+  - Implementation `MinioBlobStorage` (or `LocalStorage` for dev).
+- **AI Prompt**:
+  ```text
+  Implement storage abstraction in `module/backend-file`.
+  1. Define `BlobStorage` interface with methods: `putObject`, `getObjectUrl`, `deleteObject`.
+  2. Implement a `LocalStorage` version for development (saving files to a local directory).
+  ```
+
+### 4.3 Resource Application & API
+
+- **Goal**: Upload/Download flow.
+- **Details**:
+  - `ResourceService`: `initUpload` (create meta), `completeUpload` (update status).
+  - `ResourceController`: Upload endpoint.
+- **AI Prompt**:
+  ```text
+  Implement Resource APIs in `module/backend-file`.
+  1. Create `ResourceService` to handle file upload logic:
+     - Check SHA256 for deduplication.
+     - Save `ResourceMeta` with status UPLOADING.
+     - Upload to `BlobStorage`.
+     - Update status to ACTIVE.
+  2. Create `ResourceController` with a POST `/resources/upload` endpoint.
+  ```
+
+---
+
+## Phase 5: Advanced Features (Audit, Batch, Schedule)
+
+### 5.1 Audit Module
+
+- **Goal**: Record user actions.
+- **Ref**: `doc/design/7.日志与可观测性详细设计.md`
+- **Details**:
+  - Entity `AuditLog`.
+  - Aspect `@Audit` to intercept methods and save logs asynchronously.
+- **AI Prompt**:
+  ```text
+  Implement Audit logging in `module/backend-audit`.
+  1. Create `AuditLog` entity (userId, tenantId, action, resource, ip, timestamp).
+  2. Create an `@Audit` annotation.
+  3. Create an AOP Aspect to intercept methods annotated with `@Audit`, capture result/exception, and save `AuditLog` asynchronously.
+  ```
+
+### 5.2 Batch & Schedule
+
+- **Goal**: Async tasks.
+- **Ref**: `doc/design/8.任务调度详细设计.md`
+- **Details**:
+  - `backend-schedule`: PowerJob worker config.
+  - `backend-batch`: EasyExcel listener for import.
+- **AI Prompt**:
+  ```text
+  Setup Batch and Schedule modules.
+  1. In `module/backend-schedule`, configure PowerJob Worker (or a simple Spring Scheduler for now).
+  2. In `module/backend-batch`, create a generic `ExcelImportListener` using EasyExcel to handle batch data insertion.
+  ```
+
+---
+
+## Phase 6: Boot & Integration
+
+### 6.1 Application Entry
+
+- **Goal**: Run the system.
+- **Details**:
+  - `backend-boot`: `AdminApplication.java`.
+  - `application.yml`: Merge configs from all modules.
+- **AI Prompt**:
+  ```text
+  Finalize the `backend-boot` module.
+  1. Create the main class `AdminApplication` with `@SpringBootApplication`.
+  2. Ensure it scans all packages `io.github.faustofanb.admin`.
+  3. Consolidate `application.yml` with DB, Redis, and Server configurations.
+  ```
+
+### 6.2 Verification
+
+- **Goal**: Ensure it works.
+- **AI Prompt**:
+  ```text
+  Create an integration test in `backend-boot`.
+  1. Test the full flow:
+     - Register/Login to get Token.
+     - Use Token to upload a file.
+     - Verify Audit log is created.
+  ```
