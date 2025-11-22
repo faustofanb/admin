@@ -6,8 +6,8 @@
 
 - [x] **Phase 1: 基础架构 (Foundation)**
 - [x] **Phase 2: 系统模块初始化 (System Setup)**
-- [ ] **Phase 3: 系统核心 RBAC (System RBAC)** (进行中)
-- [ ] **Phase 4: 认证与授权 (Auth)**
+- [x] **Phase 3: 系统核心 RBAC (System RBAC)**
+- [x] **Phase 4: 认证与授权 (Auth)**
 - [ ] **Phase 5: 网关与 RPC (Gateway & RPC)**
 - [ ] **Phase 6: 文件服务 (File)**
 - [ ] **Phase 7: 审计日志 (Audit)**
@@ -68,18 +68,28 @@
   - [x] `SysMenuRepository`
   - [x] `SysRoleRepository`
   - [x] `SysUserRepository`
-- [ ] **3.3 业务逻辑**
-  - [ ] `SysUserService` (接口已定义，实现未完成)
-  - [ ] `SysMenuService`
-  - [ ] `SysDeptService`
+- [x] **3.3 业务逻辑**
+  - [x] `SysUserService`
+  - [x] `SysMenuService`
+  - [x] `SysDeptService`
 
 ### Phase 4: 认证与授权 (Auth)
 
 > 对应文档: `doc/todo/04_system_auth.md`
 
-- [ ] **4.1 Spring Security 配置**
-- [ ] **4.2 登录逻辑**
-- [ ] **4.3 权限校验**
+- [x] **4.1 基础配置**
+  - [x] 引入 Security & Redis & JWT 依赖
+  - [x] `LoginUser` 模型 (UserDetails)
+- [x] **4.2 认证核心**
+  - [x] `TokenService` (JWT 生成/解析/Redis存储)
+  - [x] `SysLoginService` (登录逻辑)
+  - [x] `UserDetailsServiceImpl` (加载用户与权限)
+- [x] **4.3 Security 集成**
+  - [x] `JwtAuthenticationTokenFilter` (过滤器)
+  - [x] `AuthenticationEntryPointImpl` (异常处理)
+  - [x] `SecurityConfig` (安全配置链)
+- [x] **4.4 接口层**
+  - [x] `SysLoginController` (登录/登出/用户信息/路由)
 
 ### Phase 5: 网关与 RPC (Gateway & RPC)
 

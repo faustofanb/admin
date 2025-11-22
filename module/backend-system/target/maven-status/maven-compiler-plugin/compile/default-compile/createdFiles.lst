@@ -8,6 +8,7 @@ io/github/faustofanb/admin/module/system/domain/entity/SysUserDraft$Builder.clas
 io/github/faustofanb/admin/module/system/domain/entity/SysMenuDraft.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictTypeTable$Remote.class
 io/github/faustofanb/admin/module/system/domain/entity/SysPostDraft.class
+io/github/faustofanb/admin/module/system/config/SecurityConfig.class
 io/github/faustofanb/admin/module/system/domain/entity/SysUserProps.class
 io/github/faustofanb/admin/module/system/domain/entity/SysUserDraft$Producer$Implementor.class
 io/github/faustofanb/admin/module/system/domain/entity/SysConfigDraft$Producer$Implementor.class
@@ -52,6 +53,7 @@ io/github/faustofanb/admin/module/system/domain/entity/SysRoleProps.class
 io/github/faustofanb/admin/module/system/domain/entity/SysRoleTable$Remote.class
 io/github/faustofanb/admin/module/system/domain/entity/SysUserTable.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictDataDraft$Producer$DraftImpl.class
+io/github/faustofanb/admin/module/system/service/SysLoginService.class
 io/github/faustofanb/admin/module/system/service/DictService.class
 io/github/faustofanb/admin/module/system/domain/entity/SysConfigDraft.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictDataDraft$Builder.class
@@ -67,6 +69,7 @@ io/github/faustofanb/admin/module/system/domain/entity/SysMenuDraft$Producer$Dra
 io/github/faustofanb/admin/module/system/domain/entity/SysPostTable.class
 io/github/faustofanb/admin/module/system/domain/entity/SysRoleDraft$Producer$DraftImpl.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDeptDraft$Producer.class
+io/github/faustofanb/admin/module/system/controller/SysLoginController.class
 io/github/faustofanb/admin/module/system/domain/entity/SysMenuTable$Remote.class
 io/github/faustofanb/admin/module/system/domain/entity/SysConfigFetcher.class
 io/github/faustofanb/admin/module/system/domain/entity/SysUserDraft$Producer$Impl.class
@@ -81,14 +84,19 @@ io/github/faustofanb/admin/module/system/domain/entity/SysMenuDraft$Builder.clas
 io/github/faustofanb/admin/module/system/domain/entity/SysPostTable$Remote.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictTypeTable.class
 io/github/faustofanb/admin/module/system/domain/entity/SysRoleTableEx.class
+io/github/faustofanb/admin/module/system/security/handle/AuthenticationEntryPointImpl.class
 io/github/faustofanb/admin/module/system/domain/entity/SysRoleTable.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDeptTable.class
+io/github/faustofanb/admin/module/system/model/LoginBody.class
 io/github/faustofanb/admin/module/system/domain/entity/SysUserFetcher.class
 io/github/faustofanb/admin/module/system/domain/entity/SysMenuTableEx.class
 io/github/faustofanb/admin/module/system/domain/entity/SysRoleDraft.class
+io/github/faustofanb/admin/module/system/service/impl/UserDetailsServiceImpl.class
 io/github/faustofanb/admin/module/system/domain/entity/SysConfigTable.class
 io/github/faustofanb/admin/module/system/service/SysMenuService.class
+io/github/faustofanb/admin/module/system/model/LoginUser.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictDataTable$Remote.class
+io/github/faustofanb/admin/module/system/security/filter/JwtAuthenticationTokenFilter.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictTypeDraft.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictTypeFetcher.class
 io/github/faustofanb/admin/module/system/domain/entity/SysUserDraft.class
@@ -104,6 +112,7 @@ io/github/faustofanb/admin/module/system/domain/entity/Immutables.class
 io/github/faustofanb/admin/module/system/repository/SysConfigRepository.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictData.class
 io/github/faustofanb/admin/module/system/service/ConfigService.class
+io/github/faustofanb/admin/module/system/service/TokenService.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDictTypeProps.class
 io/github/faustofanb/admin/module/system/domain/entity/SysConfigTable$Remote.class
 io/github/faustofanb/admin/module/system/domain/entity/SysDept.class
