@@ -1,0 +1,5 @@
+/workspaces/admin/backend-core/src/main/java/io/github/faustofanb/admin/core/cqrs/Query.java
+/workspaces/admin/backend-core/src/main/java/io/github/faustofanb/admin/core/event/DomainEvent.java
+/workspaces/admin/backend-core/src/main/java/io/github/faustofanb/admin/core/domain/TreeEntity.java
+/workspaces/admin/backend-core/src/main/java/io/github/faustofanb/admin/core/cqrs/Command.java
+/workspaces/admin/backend-core/src/main/java/io/github/faustofanb/admin/core/domain/BaseEntity.java

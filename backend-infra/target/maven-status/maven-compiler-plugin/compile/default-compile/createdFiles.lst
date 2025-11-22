@@ -1,0 +1,3 @@
+io/github/faustofanb/admin/infra/config/JacksonConfig.class
+io/github/faustofanb/admin/infra/web/GlobalExceptionHandler.class
+io/github/faustofanb/admin/infra/config/RedissonConfig.class

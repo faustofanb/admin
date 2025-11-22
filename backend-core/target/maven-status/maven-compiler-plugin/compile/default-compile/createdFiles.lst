@@ -1,0 +1,5 @@
+io/github/faustofanb/admin/core/domain/BaseEntity.class
+io/github/faustofanb/admin/core/event/DomainEvent.class
+io/github/faustofanb/admin/core/domain/TreeEntity.class
+io/github/faustofanb/admin/core/cqrs/Command.class
+io/github/faustofanb/admin/core/cqrs/Query.class

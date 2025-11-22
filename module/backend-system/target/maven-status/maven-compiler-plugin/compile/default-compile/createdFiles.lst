@@ -1,0 +1,10 @@
+io/github/faustofanb/admin/module/system/service/impl/DictServiceImpl.class
+io/github/faustofanb/admin/module/system/repository/SysDictTypeRepository.class
+io/github/faustofanb/admin/module/system/domain/entity/SysDictData.class
+io/github/faustofanb/admin/module/system/service/ConfigService.class
+io/github/faustofanb/admin/module/system/service/DictService.class
+io/github/faustofanb/admin/module/system/domain/entity/SysDictType.class
+io/github/faustofanb/admin/module/system/service/impl/ConfigServiceImpl.class
+io/github/faustofanb/admin/module/system/domain/entity/SysConfig.class
+io/github/faustofanb/admin/module/system/repository/SysConfigRepository.class
+io/github/faustofanb/admin/module/system/repository/SysDictDataRepository.class

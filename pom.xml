@@ -28,10 +28,21 @@
         <spring-boot.version>3.2.0</spring-boot.version>
         <redisson.version>3.24.3</redisson.version>
         <rocketmq.version>2.2.3</rocketmq.version>
+        <jimmer.version>0.9.30</jimmer.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.babyfish.jimmer</groupId>
+                <artifactId>jimmer-spring-boot-starter</artifactId>
+                <version>${jimmer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.babyfish.jimmer</groupId>
+                <artifactId>jimmer-core</artifactId>
+                <version>${jimmer.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>

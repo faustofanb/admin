@@ -1,0 +1,10 @@
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/domain/entity/SysDictData.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/repository/SysDictDataRepository.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/repository/SysConfigRepository.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/repository/SysDictTypeRepository.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/service/impl/DictServiceImpl.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/service/DictService.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/service/impl/ConfigServiceImpl.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/service/ConfigService.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/domain/entity/SysConfig.java
+/workspaces/admin/module/backend-system/src/main/java/io/github/faustofanb/admin/module/system/domain/entity/SysDictType.java
