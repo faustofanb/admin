@@ -1,14 +1,32 @@
 package io.github.faustofanb.admin.module.system.domain.entity;
 
-import io.github.faustofanb.admin.core.domain.TreeEntity;
+import io.github.faustofanb.admin.core.domain.BaseEntity;
 import org.babyfish.jimmer.sql.Entity;
+import org.babyfish.jimmer.sql.IdView;
+import org.babyfish.jimmer.sql.ManyToOne;
+import org.babyfish.jimmer.sql.OneToMany;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * 部门表
  */
 @Entity
-public interface SysDept extends TreeEntity<SysDept> {
+public interface SysDept extends BaseEntity {
+
+    @IdView("parent")
+    @Nullable
+    Long parentId();
+
+    Integer sort();
+
+    @ManyToOne
+    @Nullable
+    SysDept parent();
+
+    @OneToMany(mappedBy = "parent")
+    List<SysDept> children();
 
     /**
      * 部门名称

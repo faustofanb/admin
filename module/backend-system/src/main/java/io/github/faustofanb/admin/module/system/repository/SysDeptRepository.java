@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SysDeptRepository extends JRepository<SysDept, Long> {
+    
+    long countByParentId(Long parentId);
 }

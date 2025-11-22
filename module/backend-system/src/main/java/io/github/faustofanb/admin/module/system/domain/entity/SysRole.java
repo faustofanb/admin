@@ -56,4 +56,7 @@ public interface SysRole extends BaseEntity {
      */
     @ManyToMany
     List<SysDept> depts();
+
+    @ManyToMany(mappedBy = "roles")
+    List<SysUser> users();
 }

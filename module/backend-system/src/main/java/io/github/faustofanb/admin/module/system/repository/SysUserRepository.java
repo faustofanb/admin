@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface SysUserRepository extends JRepository<SysUser, Long> {
 
     Optional<SysUser> findByUserName(String userName);
+
+    long countByDeptId(Long deptId);
 }
