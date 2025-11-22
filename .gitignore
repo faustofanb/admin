@@ -1,0 +1,17 @@
+# Maven
+target/
+**/target/
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+backend-boot/target/backend-boot-1.0.0-SNAPSHOT.jar
