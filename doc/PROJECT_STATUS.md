@@ -8,9 +8,9 @@
 - [x] **Phase 2: 系统模块初始化 (System Setup)**
 - [x] **Phase 3: 系统核心 RBAC (System RBAC)**
 - [x] **Phase 4: 认证与授权 (Auth)**
-- [ ] **Phase 5: 网关与 RPC (Gateway & RPC)**
-- [ ] **Phase 6: 文件服务 (File)**
-- [ ] **Phase 7: 审计日志 (Audit)**
+- [x] **Phase 5: 网关与 RPC (Gateway & RPC)**
+- [x] **Phase 6: 文件服务 (File)**
+- [x] **Phase 7: 审计日志 (Audit)**
 - [ ] **Phase 8: 批处理与调度 (Batch & Schedule)**
 - [ ] **Phase 9: 启动与整合 (Boot)**
 
@@ -116,7 +116,9 @@
   - [x] `SysFile` 实体 (Jimmer)
   - [x] `FileStorage` 策略接口
   - [x] `LocalFileStorage` 本地存储实现
-- [ ] **6.2 MinIO 集成**
+- [x] **6.2 MinIO 集成**
+  - [x] `MinioFileStorage` 实现
+  - [x] 存储策略配置
 - [x] **6.3 业务接口**
   - [x] `SysFileController` (上传/下载)
 
@@ -124,8 +126,16 @@
 
 > 对应文档: `doc/todo/07_audit.md`
 
-- [ ] **7.1 操作日志实体**
-- [ ] **7.2 AOP 记录日志**
+- [x] **7.1 实体定义**
+  - [x] `SysOperLog` (操作日志)
+  - [x] `SysLogininfor` (登录日志)
+- [x] **7.2 AOP 记录日志**
+  - [x] `@Log` 注解
+  - [x] `LogAspect` 切面
+- [x] **7.3 业务逻辑**
+  - [x] `SysOperLogService`
+  - [x] `SysLogininforService`
+  - [x] 登录日志集成 (`SysLoginService`)
 
 ### Phase 8: 批处理与调度 (Batch & Schedule)
 
