@@ -44,22 +44,22 @@ public class SysMenuTable extends AbstractTypedTable<SysMenu> implements SysMenu
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> createdTime() {
+    public PropExpression<LocalDateTime> createdTime() {
         return __get(SysMenuProps.CREATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> updatedTime() {
+    public PropExpression<LocalDateTime> updatedTime() {
         return __get(SysMenuProps.UPDATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> createdBy() {
+    public PropExpression<Long> createdBy() {
         return __get(SysMenuProps.CREATED_BY.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> updatedBy() {
+    public PropExpression<Long> updatedBy() {
         return __get(SysMenuProps.UPDATED_BY.unwrap());
     }
 

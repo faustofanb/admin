@@ -81,7 +81,7 @@
   - [x] 引入 Security & Redis & JWT 依赖
   - [x] `LoginUser` 模型 (UserDetails)
 - [x] **4.2 认证核心**
-  - [x] `TokenService` (JWT 生成/解析/Redis存储)
+  - [x] `TokenService` (JWT 生成/解析/Redis 存储)
   - [x] `SysLoginService` (登录逻辑)
   - [x] `UserDetailsServiceImpl` (加载用户与权限)
 - [x] **4.3 Security 集成**
@@ -95,8 +95,14 @@
 
 > 对应文档: `doc/todo/05_gateway_rpc.md`
 
-- [ ] **5.1 RPC API 定义**
-- [ ] **5.2 RPC 实现**
+- [x] **5.1 RPC API 定义**
+  - [x] `RemoteUserService`
+  - [x] `RemoteLogService`
+  - [x] DTOs (`SysUserDTO`, `UserInfoDTO`, etc.)
+- [x] **5.2 RPC 实现**
+  - [x] `RemoteUserServiceImpl`
+  - [x] `RemoteLogServiceImpl`
+  - [x] 模块解耦验证 (UserDetailsServiceImpl 使用 RPC 接口)
 - [ ] **5.3 Gateway 路由**
 
 ### Phase 6: 文件服务 (File)

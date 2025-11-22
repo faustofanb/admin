@@ -42,22 +42,22 @@ public class SysRoleTable extends AbstractTypedTable<SysRole> implements SysRole
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> createdTime() {
+    public PropExpression<LocalDateTime> createdTime() {
         return __get(SysRoleProps.CREATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> updatedTime() {
+    public PropExpression<LocalDateTime> updatedTime() {
         return __get(SysRoleProps.UPDATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> createdBy() {
+    public PropExpression<Long> createdBy() {
         return __get(SysRoleProps.CREATED_BY.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> updatedBy() {
+    public PropExpression<Long> updatedBy() {
         return __get(SysRoleProps.UPDATED_BY.unwrap());
     }
 

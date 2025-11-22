@@ -40,22 +40,22 @@ public class SysDictTypeTable extends AbstractTypedTable<SysDictType> implements
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> createdTime() {
+    public PropExpression<LocalDateTime> createdTime() {
         return __get(SysDictTypeProps.CREATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> updatedTime() {
+    public PropExpression<LocalDateTime> updatedTime() {
         return __get(SysDictTypeProps.UPDATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> createdBy() {
+    public PropExpression<Long> createdBy() {
         return __get(SysDictTypeProps.CREATED_BY.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> updatedBy() {
+    public PropExpression<Long> updatedBy() {
         return __get(SysDictTypeProps.UPDATED_BY.unwrap());
     }
 

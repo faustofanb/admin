@@ -40,22 +40,22 @@ public class SysPostTable extends AbstractTypedTable<SysPost> implements SysPost
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> createdTime() {
+    public PropExpression<LocalDateTime> createdTime() {
         return __get(SysPostProps.CREATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> updatedTime() {
+    public PropExpression<LocalDateTime> updatedTime() {
         return __get(SysPostProps.UPDATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> createdBy() {
+    public PropExpression<Long> createdBy() {
         return __get(SysPostProps.CREATED_BY.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> updatedBy() {
+    public PropExpression<Long> updatedBy() {
         return __get(SysPostProps.UPDATED_BY.unwrap());
     }
 

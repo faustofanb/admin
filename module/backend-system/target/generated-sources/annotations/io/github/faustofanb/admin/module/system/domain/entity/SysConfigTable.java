@@ -40,22 +40,22 @@ public class SysConfigTable extends AbstractTypedTable<SysConfig> implements Sys
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> createdTime() {
+    public PropExpression<LocalDateTime> createdTime() {
         return __get(SysConfigProps.CREATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Tp<LocalDateTime> updatedTime() {
+    public PropExpression<LocalDateTime> updatedTime() {
         return __get(SysConfigProps.UPDATED_TIME.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> createdBy() {
+    public PropExpression<Long> createdBy() {
         return __get(SysConfigProps.CREATED_BY.unwrap());
     }
 
     @Override
-    public PropExpression.Num<Long> updatedBy() {
+    public PropExpression<Long> updatedBy() {
         return __get(SysConfigProps.UPDATED_BY.unwrap());
     }
 
