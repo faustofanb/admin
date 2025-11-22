@@ -1,0 +1,15 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: backend-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: backend-system
+          uri: http://localhost:8080
+          predicates:
+            - Path=/system/**
+          filters:
+            - StripPrefix=1

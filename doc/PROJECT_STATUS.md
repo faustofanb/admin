@@ -103,14 +103,22 @@
   - [x] `RemoteUserServiceImpl`
   - [x] `RemoteLogServiceImpl`
   - [x] 模块解耦验证 (UserDetailsServiceImpl 使用 RPC 接口)
-- [ ] **5.3 Gateway 路由**
+- [x] **5.3 Gateway 路由**
+  - [x] 引入 Spring Cloud Gateway 依赖
+  - [x] 创建 GatewayApplication
+  - [x] 配置路由 (转发 /system/\*\* 到 backend-boot)
 
 ### Phase 6: 文件服务 (File)
 
 > 对应文档: `doc/todo/06_file.md`
 
-- [ ] **6.1 MinIO 集成**
-- [ ] **6.2 文件上传下载接口**
+- [x] **6.1 基础架构**
+  - [x] `SysFile` 实体 (Jimmer)
+  - [x] `FileStorage` 策略接口
+  - [x] `LocalFileStorage` 本地存储实现
+- [ ] **6.2 MinIO 集成**
+- [x] **6.3 业务接口**
+  - [x] `SysFileController` (上传/下载)
 
 ### Phase 7: 审计日志 (Audit)
 
