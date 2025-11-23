@@ -6,6 +6,8 @@ import java.util.UUID;
  * 请求ID生成器，用于生成唯一的请求标识符。
  */
 public class RequestIdGenerator {
+    private RequestIdGenerator() {
+    }
 
     /**
      * 生成下一个请求ID。

@@ -26,7 +26,7 @@ public record ApiResponse<T>(
      */
     public static <T> ApiResponse<T> success(final T data) {
         return new ApiResponse<T>(
-                HttpStatus.OK.toString(),
+                String.valueOf(HttpStatus.OK.value()),
                 "Success",
                 "", //TODO: 添加 traceId
                 data

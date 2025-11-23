@@ -5,13 +5,14 @@ import io.github.faustofan.admin.boot.common.error.ErrorCode;
 import io.github.faustofan.admin.boot.common.exception.BusinessException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 /**
  * 全局异常处理器，统一处理系统中的异常并返回标准响应格式。
  */
-@RestController
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
@@ -21,6 +22,7 @@ public class GlobalExceptionHandler {
      * @param request 当前 Web 请求
      * @return 标准 API 响应，包含错误码、错误详情和 traceId
      */
+    @ExceptionHandler(value = BusinessException.class)
     public ApiResponse<?> handleBusinessException(BusinessException ex, WebRequest request) {
         String traceId = request.getHeader("TRACE_ID");
         return ApiResponse.failure(
@@ -36,6 +38,7 @@ public class GlobalExceptionHandler {
      * @param request 当前 Web 请求
      * @return 标准 API 响应，包含校验失败错误码、错误信息和 traceId
      */
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ApiResponse<?> handleValidationException(
             MethodArgumentNotValidException ex,
             WebRequest request
@@ -58,6 +61,7 @@ public class GlobalExceptionHandler {
      * @param request 当前 Web 请求
      * @return 标准 API 响应，包含系统内部错误码、异常信息和 traceId
      */
+    @ExceptionHandler(value = Throwable.class)
     public ApiResponse<?> handleUnhandledException(
             Throwable ex,
             WebRequest request

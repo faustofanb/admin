@@ -12,6 +12,9 @@ public class AppContextHolder {
      */
     private static final ThreadLocal<AppContext> CONTEXT = new InheritableThreadLocal<>();
 
+    private AppContextHolder() {
+    }
+
     /**
      * 设置当前线程的应用上下文。
      *

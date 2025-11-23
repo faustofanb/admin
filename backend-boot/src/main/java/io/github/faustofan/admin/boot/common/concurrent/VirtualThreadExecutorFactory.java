@@ -7,6 +7,9 @@ import java.util.concurrent.Executors;
  * 虚拟线程执行器工厂类，提供创建基于虚拟线程的 ExecutorService 的方法。
  */
 public class VirtualThreadExecutorFactory {
+    private VirtualThreadExecutorFactory() {
+    }
+
     /**
      * 创建一个基于虚拟线程的 ExecutorService，每个任务使用一个虚拟线程执行。
      *
