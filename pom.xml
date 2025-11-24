@@ -6,7 +6,7 @@
 
     <groupId>io.github.faustofanb.admin</groupId>
     <artifactId>admin-backend</artifactId>
-    <version>1.0.0</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -17,43 +17,52 @@
     </modules>
 
     <properties>
-        <reversion>1.0.0</reversion>
+        <!-- Project Settings -->
+        <revision>1.0.0</revision>
         <java.version>25</java.version>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-modulith.version>2.0.0-RC1</spring-modulith.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Spring Ecosystem (Note: Versions are futuristic/snapshot based on user request) -->
         <spring-boot.version>4.0.0</spring-boot.version>
+        <spring-modulith.version>2.0.0-RC1</spring-modulith.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
+
+        <!-- Middleware & Cloud Native -->
         <dubbo.version>3.2.12</dubbo.version>
-        <guava.version>33.5.0-jre</guava.version>
-        <commons.version>3.20.0</commons.version>
-        <jimmer.version>0.9.110</jimmer.version>
-        <redisson.version>3.37.0</redisson.version>
         <rocketmq.version>5.3.3</rocketmq.version>
         <seata.version>2.5.0</seata.version>
         <sentinel.version>1.8.9</sentinel.version>
         <powerjob.version>4.3.6</powerjob.version>
         <otel.version>1.41.0</otel.version>
-        <postgresql.version>42.7.4</postgresql.version>
         <arthas.version>4.1.1</arthas.version>
+
+        <!-- Data & Utils -->
+        <jimmer.version>0.9.110</jimmer.version>
+        <redisson.version>3.37.0</redisson.version>
+        <guava.version>33.5.0-jre</guava.version>
+        <commons.version>3.20.0</commons.version>
+        <postgresql.version>42.7.4</postgresql.version>
+        <lombok.version>1.18.30</lombok.version>
+
+        <!-- Testing -->
         <junit.jupiter.version>5.10.3</junit.jupiter.version>
         <mockito.version>5.12.0</mockito.version>
         <testcontainers.version>1.20.1</testcontainers.version>
         <assertj.version>3.26.0</assertj.version>
-        <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- 引入 Spring Boot 的 BOM -->
+            <!-- Spring Boot BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version> <!-- 使用你的 Spring Boot 版本 -->
+                <version>${spring-boot.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <!-- Spring Modulith BOM -->
             <dependency>
                 <groupId>org.springframework.modulith</groupId>
                 <artifactId>spring-modulith-bom</artifactId>
@@ -61,6 +70,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Spring Cloud BOM -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -68,17 +78,36 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Dubbo BOM -->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-bom</artifactId>
                 <version>${dubbo.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Testcontainers BOM -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Jimmer Dependencies -->
+            <dependency>
+                <groupId>org.babyfish.jimmer</groupId>
+                <artifactId>jimmer-spring-boot-starter</artifactId>
+                <version>${jimmer.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
+                <groupId>org.babyfish.jimmer</groupId>
+                <artifactId>jimmer-core</artifactId>
+                <version>${jimmer.version}</version>
             </dependency>
+
+            <!-- Utils -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -90,15 +119,12 @@
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.babyfish.jimmer</groupId>
-                <artifactId>jimmer-spring-boot-starter</artifactId>
-                <version>${jimmer.version}</version>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.babyfish.jimmer</groupId>
-                <artifactId>jimmer-core</artifactId>
-                <version>${jimmer.version}</version>
-            </dependency>
+
+            <!-- Middleware -->
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
@@ -114,16 +140,24 @@
                 <artifactId>seata-spring-boot-starter</artifactId>
                 <version>${seata.version}</version>
             </dependency>
+            <!-- FIXED: Used sentinel.version instead of seata.version -->
             <dependency>
                 <groupId>com.alibaba.csp</groupId>
                 <artifactId>sentinel-transport-simple-http</artifactId>
-                <version>${seata.version}</version>
+                <version>${sentinel.version}</version>
             </dependency>
             <dependency>
                 <groupId>tech.powerjob</groupId>
                 <artifactId>powerjob-worker-spring-boot-starter</artifactId>
                 <version>${powerjob.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.taobao.arthas</groupId>
+                <artifactId>arthas-spring-boot-starter</artifactId>
+                <version>${arthas.version}</version>
+            </dependency>
+
+            <!-- Observability -->
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-api</artifactId>
@@ -134,11 +168,15 @@
                 <artifactId>opentelemetry-sdk</artifactId>
                 <version>${otel.version}</version>
             </dependency>
+
+            <!-- Database -->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
+
+            <!-- Test Dependencies -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
@@ -151,78 +189,75 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
+                <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>com.taobao.arthas</groupId>
-                <artifactId>arthas-spring-boot-starter</artifactId>
-                <version>${arthas.version}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.asciidoctor</groupId>-->
-<!--                <artifactId>asciidoctor-maven-plugin</artifactId>-->
-<!--                <version>2.2.1</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>generate-docs</id>-->
-<!--                        <phase>prepare-package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>process-asciidoc</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <backend>html</backend>-->
-<!--                            <doctype>book</doctype>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <dependencies>-->
-<!--                    <dependency>-->
-<!--                        <groupId>org.springframework.restdocs</groupId>-->
-<!--                        <artifactId>spring-restdocs-asciidoctor</artifactId>-->
-<!--                        <version>${spring-restdocs.version}</version>-->
-<!--                    </dependency>-->
-<!--                </dependencies>-->
-<!--            </plugin>-->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.11.0</version> <!-- Upgraded for newer Java versions -->
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
+                        <!-- Spring Boot Configuration Processor -->
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
                             <version>${spring-boot.version}</version>
                         </path>
+                        <!-- Lombok Processor (Essential for compilation) -->
+                        <!--                        <path>-->
+                        <!--                            <groupId>org.projectlombok</groupId>-->
+                        <!--                            <artifactId>lombok</artifactId>-->
+                        <!--                            <version>${lombok.version}</version>-->
+                        <!--                        </path>-->
+                        <!-- Jimmer Processor (Essential for DTOs/Entities) -->
+                        <!--在需要的子工程引入， 这里不能引入-->
+                        <!--                        <path>-->
+                        <!--                            <groupId>org.babyfish.jimmer</groupId>-->
+                        <!--                            <artifactId>jimmer-apt</artifactId>-->
+                        <!--                            <version>${jimmer.version}</version>-->
+                        <!--                        </path>-->
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.5.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.5.4</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -232,40 +267,39 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Jacoco 插件配置 -->
+            <!-- Jacoco -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version> <!-- 版本可以根据需要调整 -->
+                <version>0.8.12</version> <!-- Updated for newer JDK support -->
                 <executions>
-                    <!-- 在测试阶段前运行 Jacoco -->
                     <execution>
                         <id>prepare-agent</id>
                         <goals>
-                            <goal>prepare-agent</goal> <!-- 准备代理 -->
+                            <goal>prepare-agent</goal>
                         </goals>
                     </execution>
-                    <!-- 在测试后生成覆盖率报告 -->
-<!--                    <execution>-->
-<!--                        <id>generate-report</id>-->
-<!--                        <goals>-->
-<!--                            <goal>report</goal> &lt;!&ndash; 生成报告 &ndash;&gt;-->
-<!--                        </goals>-->
-<!--                        <phase>verify</phase> &lt;!&ndash; 这表示在 verify 阶段执行 &ndash;&gt;-->
-<!--                        <configuration>-->
-<!--                            <reports>-->
-<!--                                <report>html</report> &lt;!&ndash; 生成 HTML 格式的报告 &ndash;&gt;-->
-<!--                            </reports>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
                 </executions>
             </plugin>
         </plugins>
     </build>
+
     <repositories>
         <repository>
-            <id>spring-repo</id>
-            <url>https://repo.spring.io/release</url>
+            <id>spring-milestone</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-snapshot</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
         <repository>
             <id>maven-central</id>

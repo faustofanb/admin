@@ -1,14 +1,12 @@
 package io.github.faustofan.admin.boot.common.exception;
 
 import io.github.faustofan.admin.boot.common.error.ErrorCode;
-import lombok.Getter;
 
 /**
  * 业务异常类，用于在业务处理过程中抛出自定义异常。
  * <p>
  * 该异常包含错误码和详细信息，便于异常追踪和处理。
  */
-@Getter
 public class BusinessException extends RuntimeException {
     /**
      * 业务错误码
@@ -52,4 +50,21 @@ public class BusinessException extends RuntimeException {
         this.detail = cause.getMessage();
     }
 
+    /**
+     * 获取业务错误码
+     *
+     * @return 业务错误码
+     */
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
+    /**
+     * 获取异常详细信息
+     *
+     * @return 异常详细信息
+     */
+    public String getDetail() {
+        return detail;
+    }
 }

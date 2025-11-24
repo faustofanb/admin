@@ -5,8 +5,8 @@
     <parent>
         <groupId>io.github.faustofanb.admin</groupId>
         <artifactId>admin-backend</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath> <!-- 指定父模块位置 -->
+        <version>${revision}</version> <!-- 建议与父工程 revision 保持一致 -->
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>io.github.faustofan.admin.api.impl</groupId>
     <artifactId>backend-rpc-impl</artifactId>

@@ -2,6 +2,7 @@ package io.github.faustofan.admin.boot.common.concurrent;
 
 import io.github.faustofan.admin.boot.common.context.AppContextHolder;
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -21,6 +22,7 @@ public record ContextAwareExecutor(ExecutorService delegate) {
      * @param task 需要执行的 Runnable 任务
      */
     public void execute(Runnable task) {
+        Objects.requireNonNull(task, "task must not be null");
         var context = AppContextHolder.get();
         delegate.execute(() -> {
             try {
@@ -41,6 +43,7 @@ public record ContextAwareExecutor(ExecutorService delegate) {
      * @return Future\<T\> 任务执行结果
      */
     public <T> Future<T> submit(Callable<T> task) {
+        Objects.requireNonNull(task, "task must not be null");
         var context = AppContextHolder.get();
         return delegate.submit(() -> {
             try {
