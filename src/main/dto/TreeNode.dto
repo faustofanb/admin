@@ -1,0 +1,20 @@
+export io.github.faustofan.admin.demo.model.TreeNode
+    -> package io.github.faustofan.admin.demo.model.dto
+
+/**
+ * Simple TreeNode DTO defined by DTO language
+ */
+SimpleTreeNodeView {
+    id
+    name
+}
+
+/**
+ * Recursive TreeNode DTO defined by DTO language
+ */
+RecursiveTreeNodeView {
+
+    #allScalars
+
+    childNodes*
+}
