@@ -1,0 +1,113 @@
+version: '3.8'
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../..:/workspaces:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sleep infinity
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../doc/db/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      # POSTGRES_DB: admin_db # Removed because we create multiple DBs in init script
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # RocketMQ NameServer
+  rmqnamesrv:
+    image: apache/rocketmq:5.3.0
+    command: sh mqnamesrv
+    ports:
+      - 9876:9876
+    environment:
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m
+
+  # RocketMQ Broker
+  rmqbroker:
+    image: apache/rocketmq:5.3.0
+    command: sh mqbroker -n rmqnamesrv:9876 -c /home/rocketmq/rocketmq-5.3.0/conf/broker.conf
+    ports:
+      - 10911:10911
+      - 10909:10909
+    environment:
+      - NAMESRV_ADDR=rmqnamesrv:9876
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m
+    depends_on:
+      - rmqnamesrv
+
+  # PowerJob Server
+  powerjob-server:
+    image: powerjob/powerjob-server:latest
+    ports:
+      - 7700:7700
+    environment:
+      - JVMOPTIONS=-Xmx512m
+      - PARAMS=--spring.profiles.active=product --spring.datasource.core.jdbc-url=jdbc:postgresql://db:5432/powerjob_product --spring.datasource.core.username=admin --spring.datasource.core.password=password --spring.datasource.core.driver-class-name=org.postgresql.Driver
+    depends_on:
+      - db
+
+  # RustFS (S3 Compatible Object Storage)
+  rustfs:
+    image: rustfs/rustfs:latest
+    ports:
+      - 9000:9000 # S3 API
+      - 9001:9001 # Console
+    volumes:
+      - rustfs-data:/data
+    environment:
+      - RUSTFS_ACCESS_KEY=rustfsadmin
+      - RUSTFS_SECRET_KEY=rustfsadmin
+
+  # Loki (Log Aggregation)
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # Promtail (Log Collector)
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+
+  # Grafana (Visualization)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    depends_on:
+      - loki
+      - prometheus
+
+  # Prometheus (Metrics)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    command: --config.file=/etc/prometheus/prometheus.yml
+
+volumes:
+  postgres-data:
+  redis-data:
+  rustfs-data:
