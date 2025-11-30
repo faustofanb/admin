@@ -1,7 +1,8 @@
 package io.github.faustofan.admin.common.concurrent;
 
-import io.github.faustofan.admin.common.context.AppContext;
-import io.github.faustofan.admin.common.context.AppContextHolder;
+import io.github.faustofan.admin.common.ContextAwareExecutor;
+import io.github.faustofan.admin.common.AppContext;
+import io.github.faustofan.admin.common.AppContextHolder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

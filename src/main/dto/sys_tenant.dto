@@ -1,0 +1,42 @@
+export io.github.faustofan.admin.system.domain.entity.SysTenant
+    -> package io.github.faustofan.admin.system.dto
+
+/**
+ * [Query] 租户列表查询参数
+ * 用于构建 Specification
+ */
+specification SysTenantSearchQuery {
+    #allScalars(this)
+    // 模糊搜索
+    like/i(name)
+    like/i(code)
+
+    // 排除不需要搜索的字段
+    -contactName
+    -expireTime
+}
+
+/**
+ * [Command] 创建租户
+ */
+input SysTenantCreateCommand {
+    #allScalars(this)
+}
+
+/**
+ * [Command] 修改租户
+ */
+input SysTenantUpdateCommand {
+    #allScalars(this)
+    // 修改必须传 ID
+    // id
+
+    -code // 假设租户编码创建后不允许修改
+}
+
+/**
+ * [View] 租户详情视图
+ */
+input SysTenantView {
+    #allScalars(this)
+}

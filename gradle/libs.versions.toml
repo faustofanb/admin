@@ -13,7 +13,7 @@ kotlin-spring = { module = "org.jetbrains.kotlin:kotlin-spring", version.ref = "
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 spring-modulith = { module = "org.springframework.modulith:spring-modulith-starter-core", version.ref = "spring-modulith" }
-
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "spring-boot" }
 jimmer-starter = { module = "org.babyfish.jimmer:jimmer-spring-boot-starter", version.ref = "jimmer" }
 jimmer-ksp = { module = "org.babyfish.jimmer:jimmer-ksp", version.ref = "jimmer" }
 jimmer-client-swagger = { module = "org.babyfish.jimmer:jimmer-client-swagger", version.ref = "jimmer" }

@@ -1,0 +1,44 @@
+export io.github.faustofan.admin.system.domain.entity.SysOrg
+    -> package io.github.faustofan.admin.system.dto
+
+/**
+ * [Query] 组织搜索参数
+ */
+specification SysOrgSearchQuery {
+    like/i(name)
+    // 筛选特定父节点下的组织
+    associatedIdEq(parent) as parentId
+}
+
+/**
+ * [Command] 创建组织
+ */
+input SysOrgCreateCommand {
+    #allScalars(this)
+
+    // 关联父级
+    id(parent) as parentId
+}
+
+/**
+ * [Command] 修改组织
+ */
+input SysOrgUpdateCommand {
+    #allScalars(this)
+
+    id(parent) as parentId
+
+}
+
+/**
+ * [View] 组织树节点视图
+ */
+input SysOrgView {
+    #allScalars(this)
+
+    // 展平父节点名称，方便前端显示 "父部门: 研发部"
+    flat(parent) {
+        name as parentName
+    }
+
+}

@@ -1,0 +1,20 @@
+export io.github.faustofan.admin.system.domain.entity.SysPermission
+    -> package io.github.faustofan.admin.system.dto
+
+specification SysPermissionSearchQuery {
+    like/i(name)
+    like/i(code)
+    like/i(groupName)
+}
+
+input SysPermissionCreateCommand {
+    #allScalars(this)
+}
+
+input SysPermissionUpdateCommand {
+    #allScalars(this)
+}
+
+input SysPermissionView {
+    #allScalars(this)
+}

@@ -34,6 +34,7 @@ dependencies {
     // Spring Web + Modulith
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.modulith)
+    implementation(libs.spring.boot.starter.security)
 
     // 数据库
     runtimeOnly(libs.h2.database)

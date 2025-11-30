@@ -1,5 +1,6 @@
 package io.github.faustofan.admin.common.api;
 
+import io.github.faustofan.admin.common.ApiResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

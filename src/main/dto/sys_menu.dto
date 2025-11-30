@@ -1,0 +1,27 @@
+export io.github.faustofan.admin.system.domain.entity.SysMenu
+    -> package io.github.faustofan.admin.system.dto
+
+/**
+ * [Command] 创建菜单
+ */
+input SysMenuCreateCommand {
+    #allScalars(this)
+
+    id(parent) as parentId
+}
+
+/**
+ * [Command] 修改菜单
+ */
+input SysMenuUpdateCommand {
+    #allScalars(this)
+
+    id(parent) as parentId
+}
+
+/**
+ * [View] 菜单视图
+ */
+input SysMenuView {
+    #allScalars(this)
+}

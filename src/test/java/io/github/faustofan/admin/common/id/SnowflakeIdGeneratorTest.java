@@ -1,5 +1,6 @@
 package io.github.faustofan.admin.common.id;
 
+import io.github.faustofan.admin.common.SnowflakeIdGenerator;
 import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Field;

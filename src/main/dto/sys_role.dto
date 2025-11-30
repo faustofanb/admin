@@ -1,0 +1,44 @@
+export io.github.faustofan.admin.system.domain.entity.SysRole
+    -> package io.github.faustofan.admin.system.dto
+
+/**
+ * [Query] 角色搜索
+ */
+specification SysRoleSearchQuery {
+    like/i(name)
+    like/i(code)
+}
+
+/**
+ * [Command] 创建角色
+ */
+input SysRoleCreateCommand {
+    #allScalars(this)
+
+    // 绑定菜单
+    id(menus) as menuIds
+
+    // 绑定权限 (如果分离了表)
+    // id(permissions) as permissionIds
+}
+
+/**
+ * [Command] 修改角色
+ */
+input SysRoleUpdateCommand {
+    #allScalars(this)
+
+    id(menus) as menuIds
+    // id(permissions) as permissionIds
+
+}
+
+/**
+ * [View] 角色视图
+ */
+input SysRoleView {
+    #allScalars(this)
+
+    // 返回该角色包含的菜单ID列表，用于前端回显勾选状态
+    id(menus) as menuIds
+}

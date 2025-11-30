@@ -1,0 +1,74 @@
+export io.github.faustofan.admin.system.domain.entity.SysUser
+    -> package io.github.faustofan.admin.system.dto
+
+/**
+ * [Query] 用户搜索参数
+ */
+specification SysUserSearchQuery {
+    like/i(username)
+    like/i(nickname)
+    like/i(email)
+    like/i(phone)
+
+    // 筛选状态
+    status
+
+    // 筛选部门
+    associatedIdEq(org) as orgId
+}
+
+/**
+ * [Command] 创建用户
+ */
+input SysUserCreateCommand {
+    #allScalars(this)
+
+    // 映射：前端传 "password"，后端映射到实体字段 "passwordHash"
+    // Service 层需要拦截这个 DTO，加密后再 save
+    passwordHash as password
+
+    // 关联组织
+    id(org) as orgId
+
+    // 关联角色 (多对多需要别名)
+    id(roles) as roleIds
+
+    -orgId     // DataScoped 归属部门，通常等于关联的 orgId 或者当前操作员部门，视业务而定
+}
+
+/**
+ * [Command] 修改用户
+ */
+input SysUserUpdateCommand {
+    #allScalars(this)
+
+    // 关联组织
+    id(org) as orgId
+
+    // 关联角色
+    id(roles) as roleIds
+
+    // 修改通常不包含密码，有单独的重置密码接口
+    -passwordHash
+    -username // 用户名通常不可改
+
+    -orgId
+}
+
+/**
+ * [View] 用户详情/列表视图
+ */
+input SysUserView {
+    #allScalars(this)
+
+    // 绝对不能返回密码
+    -passwordHash
+
+    // 展平部门名称
+    flat(org) {
+        name as orgName
+    }
+
+    // 返回拥有的角色ID列表
+    id(roles) as roleIds
+}
