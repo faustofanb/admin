@@ -7,15 +7,36 @@ spring:
     active: dev
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:jimmer-demo;database_to_upper=true
+    url: jdbc:h2:mem:admin_db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+  # H2 控制台配置 (访问 http://localhost:8080/h2-console)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        trace: false
+        web-allow-others: false
+  jimmer:
+    ddl:
+      auto: update
+
   threads:
     virtual:
       enabled: true
       name-prefix: biz-virt-
 
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    # 建议开发环境开启 drop-first: false，防止手误删库
+    drop-first: false
+
 jimmer:
   language: kotlin
-  database-validation-mode: ERROR
+  dialect: org.babyfish.jimmer.sql.dialect.H2Dialect
+  database-validation-mode: none
   show-sql: true
   pretty-sql: true
   inline-sql-variables: true
@@ -32,3 +53,8 @@ jimmer:
           title: admin-backend
           description: This is the OpenAPI UI of admin-backend
           version: 0.9.55
+
+logging:
+  level:
+    liquibase: info
+

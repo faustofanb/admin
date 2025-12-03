@@ -35,9 +35,14 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.modulith)
     implementation(libs.spring.boot.starter.security)
+    implementation(libs.springdoc.webmvc.ui)
 
     // 数据库
     runtimeOnly(libs.h2.database)
+    implementation("org.springframework.boot:spring-boot-starter-liquibase")
+
+    //开发
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // 测试
     testImplementation(libs.spring.boot.starter.test)

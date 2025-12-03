@@ -7,7 +7,7 @@ data class AppContext (
     val userId: Long?,
     val username: String?, // 对应 createdBy
     val orgId: Long?,
-    val requestId: Long?,
+    val requestId: String?,
     val traceId: Long?,
 
     // 获取当前用户的所有角色信息（包含 DataScope 和 自定义部门ID列表）

@@ -8,11 +8,11 @@ import org.springframework.stereotype.Repository
 interface SysUserRepository : KRepository<SysUser, Long> {
 
     // 根据用户名查询
-    fun findByUsername(username: String): SysUser?
+//    fun findByUsername(username: String): SysUser?
 
     // 根据手机号查询
-    fun findByPhone(phone: String): SysUser?
+//    fun findByPhone(phone: String): SysUser?
 
     // 根据邮箱查询
-    fun findByEmail(email: String): SysUser?
+//    fun findByEmail(email: String): SysUser?
 }

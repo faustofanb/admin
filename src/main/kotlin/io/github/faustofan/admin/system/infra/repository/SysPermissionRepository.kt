@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository
 interface SysPermissionRepository : KRepository<SysPermission, Long> {
 
     // 根据权限编码查询 (如 "user:add")
-    fun findByCode(code: String): SysPermission?
+//    fun findByCode(code: String): SysPermission?
 
     // 查询某个用户拥有的所有权限
     // 路径: SysPermission -> roles -> users -> username
-    fun findDistinctByRolesUsersUsername(username: String): List<SysPermission>
+//    fun findDistinctByRolesUsersUsername(username: String): List<SysPermission>
 }

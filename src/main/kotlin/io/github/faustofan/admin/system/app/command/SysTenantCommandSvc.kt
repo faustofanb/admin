@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.system.app.command
 
-import io.github.faustofan.admin.common.BusinessException
+import io.github.faustofan.admin.common.BizException
 import io.github.faustofan.admin.common.ErrorCode
 import io.github.faustofan.admin.system.domain.service.*
 import io.github.faustofan.admin.system.domain.entity.TenantStatus
@@ -72,7 +72,7 @@ class SysTenantCommandService(
      */
     fun renew(tenantId: Long, days: Long) {
         val tenant = tenantRepository.findById(tenantId)
-            .orElseThrow { BusinessException(ErrorCode.BIZ_NOT_FOUND, "tenant not found") }
+            .orElseThrow { BizException(message = "tenant not found") }
 
         // 领域行为：处理续费逻辑（计算时间、激活状态）
         val renewedTenant = tenant.renew(days)
@@ -97,7 +97,7 @@ class SysTenantCommandService(
      */
     fun changeStatus(tenantId: Long, status: TenantStatus) {
         val tenant = tenantRepository.findById(tenantId)
-            .orElseThrow { BusinessException(ErrorCode.BIZ_NOT_FOUND, "tenant not found") }
+            .orElseThrow { BizException(message = "tenant not found") }
         if (tenant.status == status) return
 
         val oldStatus = tenant.status
