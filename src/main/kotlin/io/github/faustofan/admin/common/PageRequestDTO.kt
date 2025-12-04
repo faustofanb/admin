@@ -15,10 +15,10 @@ import org.springframework.data.domain.Sort
 @Schema(description = "分页请求参数")
 data class PageRequestDTO(
 
-    @field:Schema(description = "页码（从 1 开始）", example = "1")
+    @field:Schema(description = "页码（从 1 开始）", example = "1", defaultValue = "1", required = false)
     val page: Int = 1,
 
-    @field:Schema(description = "每页大小", example = "10")
+    @field:Schema(description = "每页大小", example = "10", defaultValue = "10", required = false)
     val size: Int = 10,
 
     @field:Schema(

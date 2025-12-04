@@ -38,3 +38,5 @@ out/
 
 ### Kotlin ###
 .kotlin
+/doc/db/admin_db.mv.db
+/doc/db/admin_db.trace.db

@@ -1,7 +1,6 @@
 package io.github.faustofan.admin.system.app.command
 
 import io.github.faustofan.admin.common.BizException
-import io.github.faustofan.admin.common.ErrorCode
 import io.github.faustofan.admin.system.domain.service.*
 import io.github.faustofan.admin.system.domain.entity.TenantStatus
 import io.github.faustofan.admin.system.domain.events.TenantCreatedEvent
@@ -68,7 +67,7 @@ class SysTenantCommandService(
      *
      * @param tenantId 租户ID。
      * @param days 续费天数。
-     * @throws BusinessException 如果租户不存在则抛出异常。
+     * @throws BizException 如果租户不存在则抛出异常。
      */
     fun renew(tenantId: Long, days: Long) {
         val tenant = tenantRepository.findById(tenantId)
@@ -93,7 +92,7 @@ class SysTenantCommandService(
      *
      * @param tenantId 租户ID。
      * @param status 目标状态。
-     * @throws BusinessException 如果租户不存在则抛出异常。
+     * @throws BizException 如果租户不存在则抛出异常。
      */
     fun changeStatus(tenantId: Long, status: TenantStatus) {
         val tenant = tenantRepository.findById(tenantId)

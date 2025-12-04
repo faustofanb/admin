@@ -8,7 +8,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport
 @SpringBootApplication
 @EnableImplicitApi
 @EnableSpringDataWebSupport
-open class AdminBackendApplication
+class AdminBackendApplication
 
 fun main(args: Array<String>) {
     runApplication<AdminBackendApplication>(*args)

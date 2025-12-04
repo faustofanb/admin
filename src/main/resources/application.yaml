@@ -1,38 +1,119 @@
+# ===================================================================
+# 核心 Web 与 容器配置
+# ===================================================================
 server:
   port: 8080
+  # 开启优雅停机 (配合虚拟线程，防止请求被暴力截断)
+#  shutdown: graceful
+  # 开发环境改为 immediate (立即关闭)，防止 H2 文件锁死
+  shutdown: immediate
+  # 开发环境允许保留较大的请求头
+  max-http-request-header-size: 16KB
+
 spring:
   application:
     name: admin-backend
   profiles:
     active: dev
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:admin_db;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
-    username: sa
-    password:
-  # H2 控制台配置 (访问 http://localhost:8080/h2-console)
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        trace: false
-        web-allow-others: false
-  jimmer:
-    ddl:
-      auto: update
 
+  # --- 虚拟线程 (JDK 21+) ---
   threads:
     virtual:
       enabled: true
+      # 这是一个自定义配置前缀，用于区分虚拟线程
       name-prefix: biz-virt-
 
+  # --- JSON 序列化 (Jackson) ---
+  jackson:
+    # 忽略未知的属性，防止前端传多余字段导致报错
+    deserialization:
+      fail-on-unknown-properties: false
+    # 默认时区
+    time-zone: Asia/Shanghai
+
+  # ===================================================================
+  # 数据源与持久化 (H2 + HikariCP + Liquibase)
+  # ===================================================================
+  sql:
+    init:
+      mode: always
+      platform: h2
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./doc/db/admin_db;AUTO_SERVER=TRUE;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH;SCHEMA=PUBLIC;NON_KEYWORDS=USER
+    username: sa
+    password:
+    generate-unique-name: false
+    # --- HikariCP 连接池核心配置 ---
+    hikari:
+      # 连接池名称 (方便日志排查，例如: [AdminHikariPool connection adder])
+      pool-name: AdminHikariPool
+      # 1. 连接数设置
+      # 最小空闲连接数：保持这么多连接时刻“待命”
+      minimum-idle: 5
+      # 最大连接数：决定了并发上限。
+      # 注意：对于虚拟线程，不要盲目调大这个值，数据库连接是昂贵资源，通常 10-20 足够处理几千 QPS
+      maximum-pool-size: 20
+      # 2. 超时设置 (单位: 毫秒)
+      # 连接超时：从池中获取连接的最大等待时间 (30秒)，超时会报 SQLTransientConnectionException
+      connection-timeout: 30000
+      # 空闲超时：一个连接如果在池里闲置超过这个时间 (10分钟)，就会被回收
+      idle-timeout: 600000
+      # 最大生命周期：一个连接无论是否忙碌，存活这么久 (30分钟) 后会被强制退休
+      # 建议设置比数据库服务端的 wait_timeout 短 1-2 分钟，防止用到被 DB 掐断的死连接
+      max-lifetime: 1800000
+      # 验证超时：检测连接是否有效的时间 (5秒)
+      validation-timeout: 5000
+      # 3. 事务与测试
+      # 默认自动提交 (Spring 事务管理器会在开启事务时自动将其设为 false)
+      auto-commit: true
+      # 连接测试查询 (H2/PG 支持 JDBC4 标准，通常不需要配置 connection-test-query，Hikari 会自动用 isValid() 检测)
+      # connection-test-query: SELECT 1
+  # 数据库迁移
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    # 建议开发环境开启 drop-first: false，防止手误删库
+    database-change-log-table: DATABASECHANGELOG
+    database-change-log-lock-table: DATABASECHANGELOGLOCK
+    default-schema: public
+    liquibase-schema: public
     drop-first: false
+    contexts: dev
 
+  # ===================================================================
+  # 暂时关闭的中间件 (Redis + PowerJob)
+  # ===================================================================
+  autoconfigure:
+    exclude:
+      - tech.powerjob.worker.autoconfigure.PowerJobAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration
+  # ===================================================================
+  # Redis 配置
+  # ===================================================================
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      ssl:
+        enabled: false
+
+  # 自定义 Redisson 配置
+  redisson:
+    enabled: false
+    mode: SINGLE
+    pool-size: 64
+    min-idle-size: 10
+    connect-timeout: 10000
+    timeout: 3000
+    retry-attempts: 3
+    retry-interval: 1500
+
+# ===================================================================
+# ORM 框架 (Jimmer)
+# ===================================================================
 jimmer:
   language: kotlin
   dialect: org.babyfish.jimmer.sql.dialect.H2Dialect
@@ -42,6 +123,9 @@ jimmer:
   inline-sql-variables: true
   executor-context-prefixes:
     - io.github.faustofan.admin
+  # 触发器模式：仅事务提交时触发 (性能更好)
+  trigger-type: transaction_only
+  # 客户端生成配置
   client:
     ts:
       path: /ts.zip
@@ -50,11 +134,55 @@ jimmer:
       ui-path: /openapi.html
       properties:
         info:
-          title: admin-backend
-          description: This is the OpenAPI UI of admin-backend
-          version: 0.9.55
+          title: Admin Backend API
+          description: Developer API Documentation
+          version: 1.0.0
 
+# ===================================================================
+# 调度任务 (PowerJob) - 已通过 autoconfigure.exclude 彻底禁用
+# ===================================================================
+powerjob:
+  worker:
+    enabled: false
+
+# ===================================================================
+# 可观测性与日志 (Actuator + Logging)
+# ===================================================================
+management:
+  # 暴露所有端点，方便开发调试 (生产环境请务必只暴露 health,info)
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  # 显示详细的健康信息
+  endpoint:
+    health:
+      show-details: always
+  # 【关键】禁用 Redis 健康检查，防止报错
+  health:
+    redis:
+      enabled: false
+
+# ===================================================================
+# 日志配置
+# ===================================================================
 logging:
   level:
-    liquibase: info
+    root: INFO
+    # 降低 Liquibase 噪音
+    liquibase: INFO
+    # 降低 Spring Boot 启动噪音
+    org.springframework.boot: INFO
+    # 你的业务代码开启 DEBUG
+    io.github.faustofan.admin: DEBUG
+    # Jimmer SQL 日志 (如果 jimmer.show-sql=true 不够详细，可开这个)
+    # org.babyfish.jimmer.sql: DEBUG
 
+# ===================================================================
+# 文档配置 (SpringDoc OpenAPI)
+# ===================================================================
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
