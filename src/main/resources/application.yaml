@@ -34,10 +34,6 @@ spring:
   # ===================================================================
   # 数据源与持久化 (H2 + HikariCP + Liquibase)
   # ===================================================================
-  sql:
-    init:
-      mode: always
-      platform: h2
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:file:./doc/db/admin_db;AUTO_SERVER=TRUE;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH;SCHEMA=PUBLIC;NON_KEYWORDS=USER
@@ -79,6 +75,8 @@ spring:
     liquibase-schema: public
     drop-first: false
     contexts: dev
+    parameters:
+      liquibase.lockWaitTimeMillis: 2000
 
   # ===================================================================
   # 暂时关闭的中间件 (Redis + PowerJob)
@@ -89,6 +87,7 @@ spring:
       - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
       - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
       - org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration
+      - org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration
   # ===================================================================
   # Redis 配置
   # ===================================================================
@@ -173,6 +172,7 @@ logging:
     liquibase: INFO
     # 降低 Spring Boot 启动噪音
     org.springframework.boot: INFO
+    org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker: ERROR
     # 你的业务代码开启 DEBUG
     io.github.faustofan.admin: DEBUG
     # Jimmer SQL 日志 (如果 jimmer.show-sql=true 不够详细，可开这个)
