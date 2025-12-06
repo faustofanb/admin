@@ -67,7 +67,7 @@ spring:
       # connection-test-query: SELECT 1
   # 数据库迁移
   liquibase:
-    enabled: false
+    enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
     database-change-log-table: DATABASECHANGELOG
     database-change-log-lock-table: DATABASECHANGELOGLOCK
