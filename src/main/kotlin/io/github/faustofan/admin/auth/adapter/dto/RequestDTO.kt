@@ -3,7 +3,7 @@ package io.github.faustofan.admin.auth.adapter.dto
 import io.swagger.v3.oas.annotations.media.Schema
 
 /**
- * 登录请求 DTO
+ * 用户登录请求 DTO
  */
 @Schema(description = "用户登录请求")
 data class LoginRequest(

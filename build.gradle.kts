@@ -96,7 +96,12 @@ dependencies {
 //    implementation("org.springframework.modulith:spring-modulith-starter-core")
 //    runtimeOnly("org.springframework.modulith:spring-modulith-actuator")
 //    runtimeOnly("org.springframework.modulith:spring-modulith-observability")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:$springDocVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
+    // TODO: Logbook 3.x 不兼容 Spring Boot 4，等官方更新后再启用
+    // implementation("org.zalando:logbook-spring-boot-starter:3.12.3")
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0")
+    // SQL 格式化
+    implementation("com.github.vertical-blank:sql-formatter:2.0.5")
 
     // --- 数据持久化 (Jimmer + DB) ---
     implementation("org.babyfish.jimmer:jimmer-spring-boot-starter:$jimmerVersion")

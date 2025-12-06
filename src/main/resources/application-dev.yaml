@@ -1,0 +1,120 @@
+# ===================================================================
+# 开发环境配置 (application-dev.yaml)
+# ===================================================================
+server:
+  port: 8080
+  shutdown: immediate
+  max-http-request-header-size: 16KB
+
+spring:
+  # --- 数据源 ---
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/admin
+    username: admin
+    password: password
+
+  # --- Liquibase (开发环境关闭) ---
+  liquibase:
+    enabled: false
+    drop-first: false
+    contexts: dev
+
+  # --- 关闭的中间件 ---
+  autoconfigure:
+    exclude:
+      - tech.powerjob.worker.autoconfigure.PowerJobAutoConfiguration
+#      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
+#      - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
+#      - org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration
+      - org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration
+
+  # --- Redis ---
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      ssl:
+        enabled: false
+
+  # --- Redisson ---
+  redisson:
+    enabled: true
+    mode: SINGLE
+    pool-size: 64
+    min-idle-size: 10
+    connect-timeout: 10000
+    timeout: 3000
+    retry-attempts: 3
+    retry-interval: 1500
+
+# ===================================================================
+# Jimmer (开发环境 - 关闭 SQL 日志，使用 P6Spy)
+# ===================================================================
+jimmer:
+  show-sql: false
+  pretty-sql: false
+  inline-sql-variables: false
+
+# ===================================================================
+# P6Spy SQL 日志 (开发环境启用)
+# ===================================================================
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: true
+      logging: slf4j
+
+# ===================================================================
+# PowerJob (开发环境关闭)
+# ===================================================================
+powerjob:
+  worker:
+    enabled: false
+
+# ===================================================================
+# Actuator (开发环境全开)
+# ===================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: false
+
+# ===================================================================
+# 日志配置 (开发环境)
+# ===================================================================
+logging:
+  pattern:
+    console: "%d{HH:mm:ss} %clr(%-5level) %clr([%15.15thread]){faint} %clr(%-40.40logger{39}){cyan} : %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%15.15thread] %-40.40logger{39} : %msg%n"
+  level:
+    root: INFO
+    liquibase: WARN
+    org.springframework.boot: INFO
+    org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker: ERROR
+    org.springframework.security: WARN
+    org.apache.catalina: WARN
+    org.apache.tomcat: WARN
+    com.zaxxer.hikari: INFO
+    org.babyfish.jimmer.sql: WARN
+    p6spy: INFO
+    io.github.faustofan.admin: DEBUG
+
+# ===================================================================
+# 应用配置 (开发环境)
+# ===================================================================
+app:
+  http-log:
+    enabled: true
+    mask-enabled: false
+    minimum-status: 0
+

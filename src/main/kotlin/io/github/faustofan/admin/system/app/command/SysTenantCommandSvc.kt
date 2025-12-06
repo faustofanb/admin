@@ -114,4 +114,13 @@ class SysTenantCommandService(
             )
         )
     }
+
+    /**
+     * 删除租户。
+     *
+     * @param tenantId 租户ID。
+     */
+    fun delete(tenantId: Long) {
+        tenantRepository.deleteById(tenantId)
+    }
 }

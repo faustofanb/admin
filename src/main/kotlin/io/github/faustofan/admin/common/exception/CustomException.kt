@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.common.exception
 
-import io.github.faustofan.admin.common.exception.ErrorCode
+import org.babyfish.jimmer.ClientException
 
 /**
  * 业务异常基类
@@ -37,3 +37,4 @@ class ThirdPartyException(
     val code: Int = ErrorCode.THIRD_PARTY_ERROR.code,
     override val message: String = ErrorCode.THIRD_PARTY_ERROR.message
 ) : RuntimeException(message)
+

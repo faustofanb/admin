@@ -41,7 +41,11 @@ interface SysRole : TenantAware {
 
     // 当 dataScope = CUSTOM 时，关联具体的部门
     @ManyToMany
-    @JoinTable(name = "sys_role_org_mapping")
+    @JoinTable(
+        name = "sys_role_org_mapping",
+        joinColumnName = "role_id",
+        inverseJoinColumnName = "org_id"
+    )
     val specificOrgs: List<SysOrg>
 }
 

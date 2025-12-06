@@ -1,0 +1,119 @@
+# ===================================================================
+# 生产环境配置 (application-prod.yaml)
+# ===================================================================
+
+server:
+  port: 8080
+  shutdown: graceful
+  max-http-request-header-size: 16KB
+
+spring:
+  # --- 数据源 (生产环境使用环境变量) ---
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/admin}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+
+  # --- Liquibase (生产环境启用) ---
+  liquibase:
+    enabled: true
+    drop-first: false
+    contexts: prod
+
+  # --- Redis ---
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      ssl:
+        enabled: false
+
+  # --- Redisson ---
+  redisson:
+    enabled: true
+    mode: SINGLE
+    pool-size: 64
+    min-idle-size: 10
+    connect-timeout: 10000
+    timeout: 3000
+    retry-attempts: 3
+    retry-interval: 1500
+
+# ===================================================================
+# Jimmer (生产环境 - 关闭 SQL 日志)
+# ===================================================================
+jimmer:
+  show-sql: false
+  pretty-sql: false
+  inline-sql-variables: false
+
+# ===================================================================
+# P6Spy SQL 日志 (生产环境关闭)
+# ===================================================================
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+
+# ===================================================================
+# PowerJob (生产环境启用)
+# ===================================================================
+powerjob:
+  worker:
+    enabled: ${POWERJOB_ENABLED:false}
+    server-address: ${POWERJOB_SERVER:127.0.0.1:7700}
+    app-name: ${POWERJOB_APP_NAME:admin-backend}
+
+# ===================================================================
+# Actuator (生产环境限制)
+# ===================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    redis:
+      enabled: true
+
+# ===================================================================
+# 日志配置 (生产环境)
+# ===================================================================
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15.15thread] %-40.40logger{39} : %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15.15thread] %-40.40logger{39} : %msg%n"
+  level:
+    root: INFO
+    liquibase: WARN
+    org.springframework: WARN
+    org.apache: WARN
+    com.zaxxer.hikari: WARN
+    org.babyfish.jimmer.sql: WARN
+    p6spy: OFF
+    io.github.faustofan.admin: INFO
+  file:
+    name: ${LOG_PATH:/var/log/admin-backend}/admin-backend.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+
+# ===================================================================
+# 应用配置 (生产环境)
+# ===================================================================
+app:
+  http-log:
+    enabled: true
+    mask-enabled: true
+    minimum-status: 400
+
