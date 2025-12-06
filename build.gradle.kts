@@ -84,6 +84,7 @@ dependencies {
     // --- 安全与网关 (Gateway Module) ---
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("io.jsonwebtoken:jjwt:0.13.0")
     // --- 限流熔断
     implementation("io.reactivex.rxjava3:rxjava:3.1.8")
     implementation("io.github.resilience4j:resilience4j-spring-boot3:$resilience4jVersion")
@@ -92,10 +93,11 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-spring6:$resilience4jVersion")
 
     // --- 架构与文档 (Modulith + SpringDoc) ---
-    implementation("org.springframework.modulith:spring-modulith-starter-core")
-    runtimeOnly("org.springframework.modulith:spring-modulith-actuator")
-    runtimeOnly("org.springframework.modulith:spring-modulith-observability")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
+//    implementation("org.springframework.modulith:spring-modulith-starter-core")
+//    runtimeOnly("org.springframework.modulith:spring-modulith-actuator")
+//    runtimeOnly("org.springframework.modulith:spring-modulith-observability")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:$springDocVersion")
+//    implementation("com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0")
 
     // --- 数据持久化 (Jimmer + DB) ---
     implementation("org.babyfish.jimmer:jimmer-spring-boot-starter:$jimmerVersion")
@@ -134,7 +136,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
     // Modulith 架构测试
-    testImplementation("org.springframework.modulith:spring-modulith-starter-test")
+//    testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 
     // Testcontainers (集成测试)
     testImplementation("org.springframework.boot:spring-boot-testcontainers")

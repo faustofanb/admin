@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.system.domain.events
 
-import io.github.faustofan.admin.common.AppContextHolder
+import io.github.faustofan.admin.common.context.AppContextHolder
 import java.time.LocalDateTime
 
 /**

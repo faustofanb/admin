@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.system.app.command
 
-import io.github.faustofan.admin.common.BizException
+import io.github.faustofan.admin.common.exception.BizException
 import io.github.faustofan.admin.system.domain.service.*
 import io.github.faustofan.admin.system.domain.entity.TenantStatus
 import io.github.faustofan.admin.system.domain.events.TenantCreatedEvent

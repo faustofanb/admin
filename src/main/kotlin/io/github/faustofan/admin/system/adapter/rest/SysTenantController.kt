@@ -1,7 +1,7 @@
 package io.github.faustofan.admin.system.adapter.rest
 
-import io.github.faustofan.admin.common.PageRequestDTO
-import io.github.faustofan.admin.common.PageResponse
+import io.github.faustofan.admin.common.api.PageRequestDTO
+import io.github.faustofan.admin.common.api.PageResponse
 import io.github.faustofan.admin.system.app.command.SysTenantCommandService
 import io.github.faustofan.admin.system.app.query.SysTenantQueryService
 import io.github.faustofan.admin.system.domain.entity.TenantStatus

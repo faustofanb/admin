@@ -1,7 +1,7 @@
 package io.github.faustofan.admin.system.domain.entity
 
-import io.github.faustofan.admin.common.DataScope
-import io.github.faustofan.admin.common.TenantAware
+import io.github.faustofan.admin.common.context.DataScope
+import io.github.faustofan.admin.common.model.TenantAware
 import org.babyfish.jimmer.sql.*
 
 @Entity

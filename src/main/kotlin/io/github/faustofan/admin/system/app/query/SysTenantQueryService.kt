@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.system.app.query
 
-import io.github.faustofan.admin.common.PageRequestDTO
+import io.github.faustofan.admin.common.api.PageRequestDTO
 import io.github.faustofan.admin.system.dto.SysTenantSearchQuery
 import io.github.faustofan.admin.system.dto.SysTenantView
 import io.github.faustofan.admin.system.infra.repository.SysTenantRepository

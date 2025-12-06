@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.system.infra.repository
 
-import io.github.faustofan.admin.common.PageRequestDTO
+import io.github.faustofan.admin.common.api.PageRequestDTO
 import io.github.faustofan.admin.system.domain.entity.SysTenant
 import io.github.faustofan.admin.system.domain.entity.createdTime
 import io.github.faustofan.admin.system.domain.entity.name

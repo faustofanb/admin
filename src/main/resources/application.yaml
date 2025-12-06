@@ -67,7 +67,7 @@ spring:
       # connection-test-query: SELECT 1
   # 数据库迁移
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
     database-change-log-table: DATABASECHANGELOG
     database-change-log-lock-table: DATABASECHANGELOGLOCK
@@ -75,8 +75,6 @@ spring:
     liquibase-schema: public
     drop-first: false
     contexts: dev
-    parameters:
-      liquibase.lockWaitTimeMillis: 2000
 
   # ===================================================================
   # 暂时关闭的中间件 (Redis + PowerJob)
@@ -179,10 +177,21 @@ logging:
     # org.babyfish.jimmer.sql: DEBUG
 
 # ===================================================================
-# 文档配置 (SpringDoc OpenAPI)
+# 文档配置 (核心策略：禁用原生UI，启用 Knife4j，指向 Jimmer 数据)
 # ===================================================================
-springdoc:
-  swagger-ui:
-    enabled: false
-  api-docs:
-    enabled: false
+
+#见 src/main/resources/static/doc.html
+
+# ===================================================================
+# 应用自定义配置
+# ===================================================================
+app:
+  security:
+    white-list:
+      - /openapi.yml
+      - /openapi.html
+      - /ts.zip
+      - /jimmer-client/**
+      - /doc.html
+      - /assets/**
+

@@ -9,9 +9,9 @@ import io.github.faustofan.admin.system.domain.entity.UserStatus
 data class UserCreatedEvent(
     val userId: Long,
     val username: String,
-    val nickname: String?,
-    val email: String?,
-    val tenantId: String
+    val tenantId: Long,
+    val nickname: String? = null,
+    val email: String? = null
 ) : DomainEvent()
 
 /**
@@ -20,7 +20,7 @@ data class UserCreatedEvent(
  */
 data class UserPasswordChangedEvent(
     val userId: Long,
-    val username: String,
+    val username: String
 ) : DomainEvent()
 
 /**
@@ -50,5 +50,5 @@ data class UserProfileUpdatedEvent(
 data class UserDeletedEvent(
     val userId: Long,
     val username: String,
-    val tenantId: String
+    val tenantId: Long
 ) : DomainEvent()

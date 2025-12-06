@@ -21,7 +21,11 @@ specification SysUserSearchQuery {
  * [Command] 创建用户
  */
 input SysUserCreateCommand {
-    #allScalars(this)
+    username
+    nickname
+    email
+    phone
+    avatar
 
     // 映射：前端传 "password"，后端映射到实体字段 "passwordHash"
     // Service 层需要拦截这个 DTO，加密后再 save
@@ -32,33 +36,29 @@ input SysUserCreateCommand {
 
     // 关联角色 (多对多需要别名)
     id(roles) as roleIds
-
-    -orgId     // DataScoped 归属部门，通常等于关联的 orgId 或者当前操作员部门，视业务而定
 }
 
 /**
  * [Command] 修改用户
  */
 input SysUserUpdateCommand {
-    #allScalars(this)
+    nickname
+    email
+    phone
+    avatar
+    status
 
     // 关联组织
     id(org) as orgId
 
     // 关联角色
     id(roles) as roleIds
-
-    // 修改通常不包含密码，有单独的重置密码接口
-    -passwordHash
-    -username // 用户名通常不可改
-
-    -orgId
 }
 
 /**
  * [View] 用户详情/列表视图
  */
-input SysUserView {
+SysUserView {
     #allScalars(this)
 
     // 绝对不能返回密码

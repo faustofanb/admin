@@ -1,10 +1,10 @@
 package io.github.faustofan.admin.system.domain.entity
 
-import io.github.faustofan.admin.common.TenantAware
+import io.github.faustofan.admin.common.model.TenantAware
 import org.babyfish.jimmer.sql.*
-import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
+@Table(name = "sys_user")
 interface SysUser : TenantAware {
 
     @Key
@@ -29,7 +29,6 @@ interface SysUser : TenantAware {
     val org: SysOrg?
 
     // 关联：拥有的角色 (多对多)
-    // 中间表自动生成: sys_user_role_mapping
     @ManyToMany
     @JoinTable(
         name = "sys_user_role_mapping",
@@ -42,7 +41,7 @@ interface SysUser : TenantAware {
 /**
  * 用户状态枚举
  */
-@EnumType
+@EnumType(EnumType.Strategy.NAME)
 enum class UserStatus {
     ACTIVE,
     LOCKED,

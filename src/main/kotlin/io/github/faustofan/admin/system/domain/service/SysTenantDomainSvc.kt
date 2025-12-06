@@ -6,7 +6,7 @@ import io.github.faustofan.admin.system.domain.entity.copy
 import java.time.LocalDateTime
 
 // ==========================================
-// 业务校验 (Invariants)
+// 业务校验 (Invariants) - 扩展 Entity (只读)
 // ==========================================
 
 /**
@@ -28,28 +28,32 @@ fun SysTenant.checkValid() {
  * 是否即将过期 (例如剩余不到7天，用于提示)
  */
 fun SysTenant.isAboutToExpire(daysBuffer: Long = 7): Boolean {
-    if (this.expireTime == null) return false // 永久租户
+    val expire = this.expireTime ?: return false // 永久租户
 
-    val warningLine = LocalDateTime.now().plusDays(daysBuffer)
-    return this.expireTime!!.isBefore(warningLine) && this.expireTime!!.isAfter(LocalDateTime.now())
+    val now = LocalDateTime.now()
+    val warningLine = now.plusDays(daysBuffer)
+    return expire.isBefore(warningLine) && expire.isAfter(now)
 }
 
 // ==========================================
-// 状态变更 (State Transitions)
+// 状态变更 (State Transitions) - 扩展 Entity，通过 copy 返回新实例
 // ==========================================
 
 /**
  * 租户续费/延长有效期
  */
 fun SysTenant.renew(days: Long): SysTenant {
-    if (days <= 0) throw IllegalArgumentException("续费天数必须大于0")
+    require(days > 0) { "续费天数必须大于0" }
+
+    val now = LocalDateTime.now()
+    val currentExpire = this.expireTime
 
     return this.copy {
         // 如果原本是永久(null)或已过期，则从现在开始算；否则在原基础上累加
-        val baseTime = if (this@renew.expireTime == null || this@renew.expireTime!!.isBefore(LocalDateTime.now())) {
-            LocalDateTime.now()
+        val baseTime = if (currentExpire == null || currentExpire.isBefore(now)) {
+            now
         } else {
-            this@renew.expireTime!!
+            currentExpire
         }
 
         expireTime = baseTime.plusDays(days)

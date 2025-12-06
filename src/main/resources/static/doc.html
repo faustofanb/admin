@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+    <title>Admin API Reference</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body { margin: 0; }
+    </style>
+</head>
+<body>
+<!--
+  1. data-url: 指向本地 Jimmer 生成的 openapi.yml
+  2. 【重要】去掉了 data-proxy-url，确保内网/离线可用
+-->
+<script
+        id="api-reference"
+        data-url="/openapi.yml"
+></script>
+
+<!-- 3. 引用本地下载的 JS 文件 -->
+<script src="/assets/scalar.js"></script>
+</body>
+</html>

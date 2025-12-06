@@ -1,6 +1,6 @@
 package io.github.faustofan.admin.system.domain.entity
 
-import io.github.faustofan.admin.common.BaseEntity
+import io.github.faustofan.admin.common.model.BaseEntity
 import org.babyfish.jimmer.sql.*
 import java.time.LocalDateTime
 
