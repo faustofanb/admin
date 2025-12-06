@@ -97,7 +97,6 @@ dependencies {
 //    runtimeOnly("org.springframework.modulith:spring-modulith-actuator")
 //    runtimeOnly("org.springframework.modulith:spring-modulith-observability")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:$springDocVersion")
-//    implementation("com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0")
 
     // --- 数据持久化 (Jimmer + DB) ---
     implementation("org.babyfish.jimmer:jimmer-spring-boot-starter:$jimmerVersion")
@@ -105,8 +104,7 @@ dependencies {
     runtimeOnly("org.babyfish.jimmer:jimmer-client-swagger:$jimmerVersion") // TypeScript/OpenAPI生成支持
 
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
-    runtimeOnly("org.postgresql:postgresql") // 生产用 PG
-    runtimeOnly("com.h2database:h2")         // 开发/测试用 H2
+    implementation("org.postgresql:postgresql") // 生产用 PG
 
     // --- 缓存与中间件 (Infra) ---
     // Redis (Redisson)

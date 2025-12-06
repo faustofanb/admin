@@ -35,10 +35,10 @@ spring:
   # 数据源与持久化 (H2 + HikariCP + Liquibase)
   # ===================================================================
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./doc/db/admin_db;AUTO_SERVER=TRUE;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH;SCHEMA=PUBLIC;NON_KEYWORDS=USER
-    username: sa
-    password:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/admin
+    username: admin
+    password: password
     generate-unique-name: false
     # --- HikariCP 连接池核心配置 ---
     hikari:
@@ -65,6 +65,7 @@ spring:
       auto-commit: true
       # 连接测试查询 (H2/PG 支持 JDBC4 标准，通常不需要配置 connection-test-query，Hikari 会自动用 isValid() 检测)
       # connection-test-query: SELECT 1
+
   # 数据库迁移
   liquibase:
     enabled: true
@@ -113,7 +114,7 @@ spring:
 # ===================================================================
 jimmer:
   language: kotlin
-  dialect: org.babyfish.jimmer.sql.dialect.H2Dialect
+  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
   database-validation-mode: none
   show-sql: true
   pretty-sql: true

@@ -60,7 +60,7 @@ services:
       - JVMOPTIONS=-Xmx512m
       - PARAMS=--spring.profiles.active=product --spring.datasource.core.jdbc-url=jdbc:postgresql://postgresql:5432/powerjob_product --spring.datasource.core.username=admin --spring.datasource.core.password=password --spring.datasource.core.driver-class-name=org.postgresql.Driver
     depends_on:
-      - db
+      - postgresql
 
   # RustFS (S3 Compatible Object Storage)
 #  rustfs:
