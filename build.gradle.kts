@@ -84,6 +84,8 @@ dependencies {
     // --- 安全与网关 (Gateway Module) ---
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework:spring-aop")
+    implementation("org.aspectj:aspectjweaver:1.9.22")
     implementation("io.jsonwebtoken:jjwt:0.13.0")
     // --- 限流熔断
     implementation("io.reactivex.rxjava3:rxjava:3.1.8")

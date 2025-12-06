@@ -52,6 +52,9 @@ jimmer:
   client:
     ts:
       path: /ts.zip
+  # 缓存配置
+  cache:
+    enabled: false  # 在 profile 配置中开启
 
 # ===================================================================
 # 文档配置 (Knife4j / SpringDoc)
