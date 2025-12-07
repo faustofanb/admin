@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    LiteFlow 规则文件示例
+
+    EL表达式语法说明:
+    - THEN: 串行执行，如 THEN(a, b, c)
+    - WHEN: 并行执行，如 WHEN(a, b, c)
+    - SWITCH: 选择执行，如 SWITCH(x).to(a, b, c)
+    - IF: 条件判断，如 IF(x, a, b)
+    - FOR/WHILE/ITERATOR: 循环执行
+
+    更多语法请参考: https://liteflow.cc/pages/2281b1/
+-->
+<flow>
+    <!-- 示例链：演示串行执行 -->
+    <chain name="demoChain">
+        THEN(
+            demoNodeA,
+            demoNodeB,
+            demoNodeC
+        );
+    </chain>
+
+    <!-- 示例链：演示并行执行 -->
+    <chain name="parallelChain">
+        WHEN(
+            parallelNodeA,
+            parallelNodeB
+        );
+    </chain>
+
+    <!-- 示例链：演示条件分支 -->
+    <chain name="conditionChain">
+        IF(conditionNode, trueNode, falseNode);
+    </chain>
+
+    <!-- 示例链：组合使用 -->
+    <chain name="complexChain">
+        THEN(
+            startNode,
+            WHEN(
+                taskNodeA,
+                taskNodeB,
+                taskNodeC
+            ),
+            endNode
+        );
+    </chain>
+</flow>
+

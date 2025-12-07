@@ -103,7 +103,9 @@ logging:
     root: INFO
     liquibase: WARN
     org.springframework.boot: INFO
-    org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker: ERROR
+    # 隐藏 LiteFlow 相关的 BeanPostProcessor 警告（这是框架内部的 Bean 初始化顺序问题，不影响功能）
+    "[org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker]": OFF
+    org.springframework.context.annotation.ConfigurationClassPostProcessor: ERROR
     org.springframework.security: WARN
     org.apache.catalina: WARN
     org.apache.tomcat: WARN

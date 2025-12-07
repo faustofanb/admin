@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // 1. 版本定义 (集中管理，替代 libs.versions.toml)
 // =========================================================================
 val kotlinVersion = "2.1.20"
-val kspVersion = "2.1.20-2.0.0" // 需确保与 Kotlin 版本匹配
+val kspVersion = "2.1.20-2.0.1" // KSP version compatible with Kotlin 2.1.20
 val springBootVersion = "4.0.0"
 val springModulithVersion = "2.0.0"
 val springCloudVersion = "2024.0.0" // 对应 Boot 4 的 Cloud 版本
@@ -21,7 +21,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.1.20"
     kotlin("plugin.spring") version "2.1.20"
-    id("com.google.devtools.ksp") version "2.1.20-2.0.0"
+    id("com.google.devtools.ksp") version "2.1.20-2.0.1"
 }
 
 group = "io.github.faustofan.admin"
@@ -42,6 +42,13 @@ kotlin {
     sourceSets.main {
         kotlin.srcDir("build/generated/ksp/main/kotlin")
     }
+}
+
+// KSP 内存优化
+ksp {
+    arg("jimmer.source.excludes", "")
+    // 增量编译加速
+    arg("jimmer.dto.mutable", "false")
 }
 
 tasks.withType<KotlinCompile> {
@@ -109,7 +116,6 @@ dependencies {
     implementation("org.babyfish.jimmer:jimmer-spring-boot-starter:$jimmerVersion")
     ksp("org.babyfish.jimmer:jimmer-ksp:$jimmerVersion") // KSP 代码生成
     runtimeOnly("org.babyfish.jimmer:jimmer-client-swagger:$jimmerVersion") // TypeScript/OpenAPI生成支持
-
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
     implementation("org.postgresql:postgresql") // 生产用 PG
 
@@ -125,6 +131,8 @@ dependencies {
     implementation("io.minio:minio:$minioVersion")
     // 分布式调度 (PowerJob Worker)
     implementation("tech.powerjob:powerjob-worker-spring-boot-starter:$powerJobVersion")
+    // 流程引擎 (LiteFlow)
+    implementation("com.yomahub:liteflow-spring-boot-starter:2.15.2")
 
     // --- 可观测性 (Tracing) ---
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
@@ -157,8 +165,11 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 
-    // 针对 JDK 21+ 的动态代理加载问题修复，并给予足够内存
-    jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xmx2G")
+    // JDK 21+ ZGC for tests
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xmx1g", "-XX:+UseZGC", "-XX:+ZGenerational")
+
+    // 限制测试并发度
+    maxParallelForks = 1
 
     testLogging {
         events("passed", "skipped", "failed")
