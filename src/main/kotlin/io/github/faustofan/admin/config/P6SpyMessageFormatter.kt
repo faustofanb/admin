@@ -49,14 +49,14 @@ class P6SpyMessageFormatter : MessageFormattingStrategy {
 //        val dbName = extractDbName(url)
 
         return buildString {
-            appendLine()
+            append("\n--   ──────────────────────────────────────────────────────────────────────\n")
             appendLine("-- 📊 $now | ⚡${elapsed}ms | conn:$connectionId | $category | $url")
             if (businessContext.isNotEmpty()) {
                 appendLine("-- 📍 $businessContext")
             }
-            appendLine("-- SQL ─────────────────────────────────────────────────────────────────────────")
+            appendLine("-- SQL ────────────────────────────────────────────────────────────────────")
             appendLine(formatSql(sql))
-            append("-- ─────────────────────────────────────────────────────────────────────────────")
+            append("---────────────────────────────────────────────────────────────────────────")
         }
     }
 

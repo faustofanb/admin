@@ -16,6 +16,16 @@ data class TenantCreatedEvent(
 ) : DomainEvent()
 
 /**
+ * 租户已更新
+ * 场景：清除缓存，同步信息
+ */
+data class TenantUpdatedEvent(
+    val tenantId: Long,
+    val name: String,
+    val code: String
+) : DomainEvent()
+
+/**
  * 租户状态变更
  * 场景：租户被禁用时，强制踢出该租户下的所有在线用户
  */
@@ -35,4 +45,13 @@ data class TenantRenewedEvent(
     val name: String,
     val daysAdded: Long,
     val newExpireTime: LocalDateTime?
+) : DomainEvent()
+
+/**
+ * 租户已删除
+ * 场景：清理租户资源，清除所有缓存
+ */
+data class TenantDeletedEvent(
+    val tenantId: Long,
+    val code: String
 ) : DomainEvent()

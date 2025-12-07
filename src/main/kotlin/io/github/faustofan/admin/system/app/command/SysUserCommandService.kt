@@ -2,8 +2,7 @@ package io.github.faustofan.admin.system.app.command
 
 import io.github.faustofan.admin.common.exception.BizException
 import io.github.faustofan.admin.system.domain.entity.*
-import io.github.faustofan.admin.system.domain.events.UserCreatedEvent
-import io.github.faustofan.admin.system.domain.events.UserStatusChangedEvent
+import io.github.faustofan.admin.system.domain.events.*
 import io.github.faustofan.admin.system.dto.SysUserCreateCommand
 import io.github.faustofan.admin.system.dto.SysUserUpdateCommand
 import io.github.faustofan.admin.system.infra.repository.SysUserRepository
@@ -16,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional
 
 /**
  * 用户命令服务
- * 处理用户的创建、更新、状态变更等写操作
+ *
+ * 职责：处理用户的创建、更新、状态变更等写操作
+ * 原则：只关注业务逻辑，通过发布领域事件解耦缓存、通知等副作用
  */
 @Service
 @Transactional
@@ -30,46 +31,32 @@ class SysUserCommandService(
      * 创建用户
      */
     fun create(cmd: SysUserCreateCommand): Long {
-        // 检查用户名是否已存在
-        // 注意：这里需要绕过租户过滤器检查全局唯一性
-        // TODO: 实现租户内用户名唯一性检查
-
-        // 加密密码
         val encodedPassword = passwordEncoder.encode(cmd.password)
 
-        // 构建实体
         val entity = new(SysUser::class).by {
             username = cmd.username
             nickname = cmd.nickname
-            if (encodedPassword != null) {
-                passwordHash = encodedPassword
-            }
+            encodedPassword?.let { passwordHash = it }
             email = cmd.email
             phone = cmd.phone
             avatar = cmd.avatar
             status = UserStatus.ACTIVE
 
-            // 设置关联的组织
-            cmd.orgId?.let {
-                org = new(SysOrg::class).by { id = it }
-            }
-
-            // 设置关联的角色
-            cmd.roleIds?.let { ids ->
-                roles = ids.map { roleId ->
-                    new(SysRole::class).by { id = roleId }
-                }
+            cmd.orgId?.let { org = new(SysOrg::class).by { id = it } }
+            cmd.roleIds.let { ids ->
+                roles = ids.map { roleId -> new(SysRole::class).by { id = roleId } }
             }
         }
 
         val savedUser = userRepository.save(entity)
 
-        // 发布用户创建事件
         eventPublisher.publishEvent(
             UserCreatedEvent(
                 userId = savedUser.id,
                 username = savedUser.username,
-                tenantId = savedUser.tenantId
+                tenantId = savedUser.tenantId,
+                nickname = savedUser.nickname,
+                email = savedUser.email
             )
         )
 
@@ -91,20 +78,22 @@ class SysUserCommandService(
             avatar = cmd.avatar
             status = cmd.status
 
-            // 更新关联的组织
-            cmd.orgId?.let {
-                org = new(SysOrg::class).by { this.id = it }
-            }
-
-            // 更新关联的角色
+            cmd.orgId?.let { org = new(SysOrg::class).by { this.id = it } }
             cmd.roleIds.let { ids ->
-                roles = ids.map { roleId ->
-                    new(SysRole::class).by { this.id = roleId }
-                }
+                roles = ids.map { roleId -> new(SysRole::class).by { this.id = roleId } }
             }
         }
 
         val savedUser = userRepository.save(entity, SaveMode.UPDATE_ONLY)
+
+        eventPublisher.publishEvent(
+            UserUpdatedEvent(
+                userId = savedUser.id,
+                username = existing.username,
+                tenantId = existing.tenantId
+            )
+        )
+
         return savedUser.id
     }
 
@@ -119,12 +108,18 @@ class SysUserCommandService(
 
         val updated = new(SysUser::class).by {
             id = userId
-            if (encodedPassword != null) {
-                passwordHash = encodedPassword
-            }
+            encodedPassword?.let { passwordHash = it }
         }
 
         userRepository.save(updated, SaveMode.UPDATE_ONLY)
+
+        eventPublisher.publishEvent(
+            UserPasswordChangedEvent(
+                userId = userId,
+                username = user.username,
+                tenantId = user.tenantId
+            )
+        )
     }
 
     /**
@@ -134,7 +129,6 @@ class SysUserCommandService(
         val user = userRepository.findById(userId)
             .orElseThrow { BizException(message = "用户不存在") }
 
-        // 验证旧密码
         if (!passwordEncoder.matches(oldPassword, user.passwordHash)) {
             throw BizException(message = "原密码错误")
         }
@@ -143,12 +137,18 @@ class SysUserCommandService(
 
         val updated = new(SysUser::class).by {
             id = userId
-            if (encodedPassword != null) {
-                passwordHash = encodedPassword
-            }
+            encodedPassword?.let { passwordHash = it }
         }
 
         userRepository.save(updated, SaveMode.UPDATE_ONLY)
+
+        eventPublisher.publishEvent(
+            UserPasswordChangedEvent(
+                userId = userId,
+                username = user.username,
+                tenantId = user.tenantId
+            )
+        )
     }
 
     /**
@@ -169,7 +169,6 @@ class SysUserCommandService(
 
         userRepository.save(updated, SaveMode.UPDATE_ONLY)
 
-        // 发布状态变更事件
         eventPublisher.publishEvent(
             UserStatusChangedEvent(
                 userId = userId,
@@ -184,14 +183,37 @@ class SysUserCommandService(
      * 删除用户（逻辑删除）
      */
     fun delete(userId: Long) {
+        val user = userRepository.findById(userId)
+            .orElseThrow { BizException(message = "用户不存在") }
+
         userRepository.deleteById(userId)
+
+        eventPublisher.publishEvent(
+            UserDeletedEvent(
+                userId = userId,
+                username = user.username,
+                tenantId = user.tenantId
+            )
+        )
     }
 
     /**
      * 批量删除用户
      */
     fun batchDelete(userIds: List<Long>) {
+        if (userIds.isEmpty()) return
+
+        val firstUser = userRepository.findById(userIds.first())
+            .orElseThrow { BizException(message = "用户不存在") }
+
         userRepository.deleteAllById(userIds)
+
+        eventPublisher.publishEvent(
+            UserBatchDeletedEvent(
+                userIds = userIds,
+                tenantId = firstUser.tenantId
+            )
+        )
     }
 }
 

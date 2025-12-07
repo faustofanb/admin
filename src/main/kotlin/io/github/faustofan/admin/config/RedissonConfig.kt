@@ -1,16 +1,14 @@
 package io.github.faustofan.admin.config
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
-import org.redisson.codec.JsonJacksonCodec
 import org.redisson.config.Config
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
 @ConditionalOnProperty(prefix = "spring.redisson", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 @Configuration
@@ -24,9 +22,9 @@ class RedissonConfig(
     fun redissonClient(): RedissonClient {
         val config = Config()
 
-        // 1. 设置 Jackson 编解码器 (支持 Kotlin)
-        val objectMapper = jacksonObjectMapper()
-        config.codec = JsonJacksonCodec(objectMapper)
+        // 使用 Kryo5Codec - 高性能二进制序列化，自动处理类型
+        // 比 JsonJacksonCodec 更快，且不需要 @class 属性
+        config.codec = org.redisson.codec.Kryo5Codec()
 
         // 2. 确定协议前缀 (SSL 支持)
         val protocolPrefix = if (redisProperties.ssl.isEnabled) "rediss://" else "redis://"

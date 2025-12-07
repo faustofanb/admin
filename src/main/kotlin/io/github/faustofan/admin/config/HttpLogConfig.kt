@@ -194,21 +194,21 @@ class HttpLoggingFilter(
         val logMessage = buildString {
             appendLine()
             appendLine("┌──────────────────────────────────────────────────────────────────────────")
-            appendLine("│ ✅ $method $uri$query")
-            appendLine("│ ⏱️  ${duration}ms | Status: $status")
+            appendLine(" ✅ $method $uri$query")
+            appendLine(" ⏱️  ${duration}ms | Status: $status")
             if (headers.isNotEmpty()) {
-                appendLine("│ 📋 Headers: $headers")
+                appendLine(" 📋 Headers: $headers")
             }
             if (displayRequestBody.isNotEmpty()) {
-                appendLine("│ 📥 Request:")
+                appendLine(" 📥 Request:")
                 formatJsonBody(displayRequestBody).lines().forEach { line ->
-                    appendLine("│     $line")
+                    appendLine("     $line")
                 }
             }
             if (displayResponseBody.isNotEmpty()) {
-                appendLine("│ 📤 Response:")
+                appendLine(" 📤 Response:")
                 formatJsonBody(truncate(displayResponseBody)).lines().forEach { line ->
-                    appendLine("│     $line")
+                    appendLine("     $line")
                 }
             }
             append("└──────────────────────────────────────────────────────────────────────────")
