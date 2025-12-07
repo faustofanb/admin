@@ -1,4 +1,4 @@
-export io.github.faustofan.admin.system.domain.entity.SysTenant
+export io.github.faustofan.admin.system.domain.model.SysTenant
     -> package io.github.faustofan.admin.system.dto
 
 /**

@@ -1,10 +1,10 @@
 package io.github.faustofan.admin.auth.domain.service
 
-import io.github.faustofan.admin.auth.domain.entity.LoginUser
-import io.github.faustofan.admin.common.context.RoleDataScopeInfo
-import io.github.faustofan.admin.common.exception.BizException
-import io.github.faustofan.admin.system.domain.entity.UserStatus
-import io.github.faustofan.admin.system.infra.repository.SysUserRepository
+import io.github.faustofan.admin.auth.domain.model.LoginUser
+import io.github.faustofan.admin.shared.application.context.RoleDataScopeInfo
+import io.github.faustofan.admin.shared.infrastructure.exception.BizException
+import io.github.faustofan.admin.system.domain.model.UserStatus
+import io.github.faustofan.admin.system.infrastructure.persistence.SysUserRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException

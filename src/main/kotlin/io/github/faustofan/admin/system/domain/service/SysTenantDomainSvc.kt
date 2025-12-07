@@ -1,8 +1,8 @@
 package io.github.faustofan.admin.system.domain.service
 
-import io.github.faustofan.admin.system.domain.entity.SysTenant
-import io.github.faustofan.admin.system.domain.entity.TenantStatus
-import io.github.faustofan.admin.system.domain.entity.copy
+import io.github.faustofan.admin.system.domain.model.SysTenant
+import io.github.faustofan.admin.system.domain.model.TenantStatus
+import io.github.faustofan.admin.system.domain.model.copy
 import java.time.LocalDateTime
 
 // ==========================================

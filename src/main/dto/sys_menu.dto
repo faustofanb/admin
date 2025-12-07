@@ -1,4 +1,4 @@
-export io.github.faustofan.admin.system.domain.entity.SysMenu
+export io.github.faustofan.admin.system.domain.model.SysMenu
     -> package io.github.faustofan.admin.system.dto
 
 /**

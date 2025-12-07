@@ -1,0 +1,132 @@
+package io.github.faustofan.admin.shared.infrastructure.cache
+
+import java.util.concurrent.TimeUnit
+
+/**
+ * 声明式缓存注解
+ *
+ * 用于标记需要缓存的方法，配合 AOP 实现声明式缓存
+ *
+ * 使用示例：
+ * ```kotlin
+ * @Cached(key = "'sys:user:' + #id", ttl = 15, unit = TimeUnit.MINUTES)
+ * fun findById(id: Long): SysUserView?
+ *
+ * @Cached(key = "T(io.github.faustofan.admin.cache.CacheKeys).user(#id)")
+ * fun findById(id: Long): SysUserView?
+ * ```
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Cached(
+    /**
+     * 缓存 Key，支持 SpEL 表达式
+     * 例如: "'user:' + #userId" 或 "T(CacheKeys).user(#id)"
+     */
+    val key: String = "",
+
+    /**
+     * 过期时间，默认 1 小时
+     */
+    val ttl: Long = 1,
+
+    /**
+     * 时间单位，默认小时
+     */
+    val unit: TimeUnit = TimeUnit.HOURS,
+
+    /**
+     * 缓存条件，SpEL 表达式，返回 true 才缓存
+     * 例如: "#result != null"
+     */
+    val condition: String = "",
+
+    /**
+     * 排除条件，SpEL 表达式，返回 true 则不缓存
+     * 例如: "#result == null"
+     */
+    val unless: String = "",
+
+    /**
+     * 是否缓存 null 值，防止缓存穿透
+     */
+    val cacheNull: Boolean = false,
+
+    /**
+     * null 值缓存时间（秒），默认 5 分钟
+     */
+    val nullTtlSeconds: Long = 300
+)
+
+/**
+ * 缓存失效注解
+ *
+ * 用于标记会使缓存失效的方法
+ *
+ * 使用示例：
+ * ```kotlin
+ * @CacheEvict(key = "'sys:user:' + #id")
+ * fun update(id: Long, cmd: UpdateCommand)
+ *
+ * @CacheEvict(pattern = "sys:user:*")
+ * fun clearAllUsers()
+ * ```
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@Repeatable
+annotation class CacheEvict(
+    /**
+     * 要失效的缓存 Key，支持 SpEL 表达式
+     */
+    val key: String = "",
+
+    /**
+     * 要失效的缓存 Key 模式（支持通配符 *）
+     */
+    val pattern: String = "",
+
+    /**
+     * 是否在方法执行前失效缓存
+     */
+    val beforeInvocation: Boolean = false
+)
+
+/**
+ * 批量缓存失效注解
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CacheEvicts(
+    vararg val value: CacheEvict
+)
+
+/**
+ * 缓存更新注解
+ *
+ * 更新缓存而非删除，适用于更新后立即需要读取的场景
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CachePut(
+    /**
+     * 缓存 Key，支持 SpEL 表达式
+     */
+    val key: String,
+
+    /**
+     * 过期时间，默认 1 小时
+     */
+    val ttl: Long = 1,
+
+    /**
+     * 时间单位，默认小时
+     */
+    val unit: TimeUnit = TimeUnit.HOURS,
+
+    /**
+     * 缓存条件，SpEL 表达式
+     */
+    val condition: String = ""
+)
+

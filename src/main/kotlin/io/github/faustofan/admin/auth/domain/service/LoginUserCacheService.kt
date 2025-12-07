@@ -1,8 +1,8 @@
 package io.github.faustofan.admin.auth.domain.service
 
-import io.github.faustofan.admin.auth.domain.entity.LoginUser
-import io.github.faustofan.admin.cache.CacheKeys
-import io.github.faustofan.admin.cache.CacheService
+import io.github.faustofan.admin.auth.domain.model.LoginUser
+import io.github.faustofan.admin.shared.infrastructure.cache.CacheKeys
+import io.github.faustofan.admin.shared.infrastructure.cache.CacheService
 import org.springframework.stereotype.Service
 import java.time.Duration
 

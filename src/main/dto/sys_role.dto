@@ -1,4 +1,4 @@
-export io.github.faustofan.admin.system.domain.entity.SysRole
+export io.github.faustofan.admin.system.domain.model.SysRole
     -> package io.github.faustofan.admin.system.dto
 
 /**

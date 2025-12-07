@@ -1,4 +1,4 @@
-export io.github.faustofan.admin.system.domain.entity.SysPermission
+export io.github.faustofan.admin.system.domain.model.SysPermission
     -> package io.github.faustofan.admin.system.dto
 
 specification SysPermissionSearchQuery {
