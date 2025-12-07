@@ -2,7 +2,7 @@
 # 开发环境配置 (application-dev.yaml)
 # ===================================================================
 server:
-  port: 8080
+  port: 80
   shutdown: immediate
   max-http-request-header-size: 16KB
 
@@ -27,7 +27,6 @@ spring:
 #      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
 #      - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
 #      - org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration
-      - org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration
 
   # --- Redis ---
   data:
@@ -76,6 +75,18 @@ decorator:
 powerjob:
   worker:
     enabled: false
+
+# ===================================================================
+# Pulsar (开发环境)
+# ===================================================================
+spring.pulsar:
+  client:
+    service-url: pulsar://127.0.0.1:6650
+  defaults:
+    type-mappings:
+      # 配置默认 topic 命名前缀
+      - message-type: io.github.faustofan.admin.shared.domain.event.DomainEvent
+        topic-name: persistent://public/default/domain-events
 
 # ===================================================================
 # Actuator (开发环境全开)

@@ -57,6 +57,30 @@ jimmer:
     enabled: false  # 在 profile 配置中开启
 
 # ===================================================================
+# 消息队列 (Pulsar)
+# ===================================================================
+spring.pulsar:
+  client:
+    service-url: pulsar://localhost:6650
+    operation-timeout: 30s
+    connection-timeout: 10s
+  producer:
+    name: ${spring.application.name}-producer
+    send-timeout: 30s
+    batching-enabled: true
+  consumer:
+    subscription:
+      name: ${spring.application.name}-subscription
+      mode: durable
+      type: shared
+    dead-letter-policy:
+      max-redeliver-count: 3
+      dead-letter-topic: persistent://public/default/dlq
+  listener:
+    concurrency: 4
+    observation-enabled: true
+
+# ===================================================================
 # 流程编排引擎 (LiteFlow)
 # ===================================================================
 liteflow:
@@ -130,6 +154,18 @@ springdoc:
 # 应用自定义配置
 # ===================================================================
 app:
+  messaging:
+    pulsar:
+      enabled: true
+      default-tenant: public
+      default-namespace: default
+      event-topic-prefix: domain-events
+      dead-letter-topic: dlq
+      consumer:
+        subscription-prefix: ${spring.application.name}
+        concurrency: 4
+        max-retries: 3
+        ack-timeout-ms: 30000
   # 安全配置
   security:
     white-list:
