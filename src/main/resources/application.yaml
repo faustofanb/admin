@@ -199,3 +199,22 @@ app:
       - refreshToken
       - token
       - secret
+
+  # 异步任务与并发配置
+  async:
+    enabled: true
+    # 虚拟线程配置
+    virtual-thread:
+      enabled: true
+      name-prefix: virt-
+      task-termination-timeout: 60000
+    # 协程配置
+    coroutine:
+      enabled: true
+      use-virtual-thread: true
+    # 传统线程池配置（用于 CPU 密集型任务）
+    thread-pool:
+      cpu-core-pool-size: 8
+      cpu-max-pool-size: 16
+      queue-capacity: 1000
+      keep-alive-seconds: 60
