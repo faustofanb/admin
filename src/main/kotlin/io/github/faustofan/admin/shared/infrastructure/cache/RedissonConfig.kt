@@ -1,9 +1,11 @@
-package io.github.faustofan.admin.shared.infrastructure.config
+package io.github.faustofan.admin.shared.infrastructure.cache
 
+import jakarta.annotation.PostConstruct
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
 import org.redisson.codec.Kryo5Codec
 import org.redisson.config.Config
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -11,16 +13,29 @@ import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-@ConditionalOnProperty(prefix = "spring.redisson", name = ["enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "app.cache.redis", name = ["enabled"], havingValue = "true", matchIfMissing = false)
 @Configuration
 @EnableConfigurationProperties(RedissonCustomProperties::class, DataRedisProperties::class)
 class RedissonConfig(
     private val redisProperties: DataRedisProperties,
     private val redissonCustomProperties: RedissonCustomProperties
 ) {
+    private val log = LoggerFactory.getLogger(RedissonConfig::class.java)
+
+    @PostConstruct
+    fun init() {
+        log.info("========================================")
+        log.info("Redisson 分布式缓存已启用")
+        log.info("模式: {}", redissonCustomProperties.mode)
+        log.info("地址: {}:{}", redisProperties.host, redisProperties.port)
+        log.info("数据库: {}", redisProperties.database)
+        log.info("连接池大小: {}", redissonCustomProperties.poolSize)
+        log.info("========================================")
+    }
 
     @Bean(destroyMethod = "shutdown")
     fun redissonClient(): RedissonClient {
+        log.info("正在创建 RedissonClient...")
         val config = Config()
 
         // 使用 Kryo5Codec - 高性能二进制序列化，自动处理类型
@@ -36,7 +51,9 @@ class RedissonConfig(
             RedissonMode.CLUSTER -> configureCluster(config, protocolPrefix)
         }
 
-        return Redisson.create(config)
+        val client = Redisson.create(config)
+        log.info("✅ RedissonClient 创建成功")
+        return client
     }
 
     /**

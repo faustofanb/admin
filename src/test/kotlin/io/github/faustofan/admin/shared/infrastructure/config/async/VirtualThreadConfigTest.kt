@@ -1,5 +1,6 @@
 package io.github.faustofan.admin.shared.infrastructure.config.async
 
+import io.github.faustofan.admin.shared.infrastructure.async.config.VirtualThreadConfig
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

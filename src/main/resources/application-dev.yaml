@@ -20,14 +20,6 @@ spring:
     drop-first: false
     contexts: dev
 
-  # --- 关闭的中间件 ---
-  autoconfigure:
-    exclude:
-      - tech.powerjob.worker.autoconfigure.PowerJobAutoConfiguration
-#      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
-#      - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
-#      - org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration
-
   # --- Redis ---
   data:
     redis:
@@ -77,18 +69,6 @@ powerjob:
     enabled: false
 
 # ===================================================================
-# Pulsar (开发环境)
-# ===================================================================
-spring.pulsar:
-  client:
-    service-url: pulsar://127.0.0.1:6650
-  defaults:
-    type-mappings:
-      # 配置默认 topic 命名前缀
-      - message-type: io.github.faustofan.admin.shared.domain.event.DomainEvent
-        topic-name: persistent://public/default/domain-events
-
-# ===================================================================
 # Actuator (开发环境全开)
 # ===================================================================
 management:
@@ -124,11 +104,19 @@ logging:
     org.babyfish.jimmer.sql: WARN
     p6spy: INFO
     io.github.faustofan.admin: DEBUG
+    org.apache.pulsar: DEBUG
+    org.springframework.pulsar: DEBUG
 
 # ===================================================================
 # 应用配置 (开发环境)
 # ===================================================================
 app:
+  cache:
+    redis:
+      enabled: true
+  messaging:
+    pulsar:
+      enabled: false
   http-log:
     enabled: true
     mask-enabled: false

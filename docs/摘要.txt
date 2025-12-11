@@ -1,0 +1,52 @@
+现代高性能可扩展, 高安全, 可观测的多租户后台管理系统脚手架, 包含租户，用户，权限，角色，组织，菜单，字典，产品包等基础模块
+
+架构：
+    DDD+CQRS+ACL
+
+技术栈：
+    jdk21+kotlin2+gradle9
+    springboot4+springsercurity+jwt+oauth2+
+    jimmer+liquibase+postgresql+redession+caffline+pulsar
+    liteflow+powerjob+minio_bytebuddy
+    resilience4j+prometheus+micrometer+opentelemetry
+    openapi+scalar
+
+中间件：
+    postgresql      不引入时， 使用h2替代
+    redis           不引入时， 使用caffline替代
+    pulsar          不引入时， 使用spring event替代
+    powerjob        不引入时， 使用spring task， schedule替代
+    minio           不引入时， 使用本地文件系统替代
+
+模块：
+    shared:
+        common          :应用上下文，统一请求与响应与分页对象，自定义错误码与异常处理
+        async           :虚拟线程，协程
+        lock            :本地与分布式锁
+        asm             :bytebuddy字节码操作， 替换Spring AOP
+        cache           :多级缓存， caffline + redission
+        messaging       :消息队列， 领域事件，pulsar, spring event
+        persistence     :租户基类，审计基类， 数据权限基类， jimmer配置，租户过滤器拦截器，数据权限过滤器，审计拦截器， liquibase集成
+        batch           :批处理操作， 主要是easyexcel的导入导出
+        observability   :HTTP日志， py6spySQL日志， logback配置， prometheus + opentelemetry配置， openapi配置
+        security        :安全基础设施， JWT工具类， OAuth2配置， Spring Security配置
+        available       :限流熔断降级回退重试， resilience4j配置
+        idempotent      :幂等, 分布式ID，布隆过滤器
+        flow            :复杂流程编排的抽象封装， liteflow实现
+        oss             :对象存储的抽象封装， minio实现
+        transaction     :本地事务， 分布式事务抽象封装，spring transaction, 最终一致性， outbox模式实现
+        web             :全局异常处理器， 其他过滤器， 拦截器
+        scheduler       :任务调度抽象分装，定时任务等， powerjob实现
+    gateway
+    auth
+    system:
+        tenant
+        user
+        role
+        permission
+        organization
+        menu
+        dictionary
+        product
+
+

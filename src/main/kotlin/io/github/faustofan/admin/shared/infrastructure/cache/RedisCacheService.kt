@@ -3,7 +3,7 @@ package io.github.faustofan.admin.shared.infrastructure.cache
 import org.redisson.api.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
  * 支持分布式锁、布隆过滤器等分布式特性
  */
 @Service("redisCacheService")
-@ConditionalOnBean(RedissonClient::class)
+@ConditionalOnProperty(prefix = "app.cache.redis", name = ["enabled"], havingValue = "true", matchIfMissing = false)
 class RedisCacheService(
     @field:Autowired(required = false)
     private val redissonClient: RedissonClient?

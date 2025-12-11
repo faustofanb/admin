@@ -5,6 +5,7 @@ import io.github.faustofan.admin.shared.infrastructure.messaging.MessageId
 import io.github.faustofan.admin.shared.infrastructure.messaging.MessagePublisher
 import io.github.faustofan.admin.shared.infrastructure.messaging.TopicResolver
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.pulsar.core.PulsarTemplate
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -18,6 +19,7 @@ import org.apache.pulsar.client.api.MessageId as PulsarMessageId
  * 支持同步/异步发送、延迟消息、带 Key 的顺序消息等特性。
  */
 @Component
+@ConditionalOnBean(PulsarAutoConfiguration::class)
 class PulsarMessagePublisher(
     private val pulsarTemplate: PulsarTemplate<Any>,
     private val topicResolver: TopicResolver

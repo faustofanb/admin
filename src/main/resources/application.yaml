@@ -11,7 +11,6 @@ spring:
   threads:
     virtual:
       enabled: true
-      name-prefix: biz-virt-
 
   # --- JSON 序列化 (Jackson) ---
   jackson:
@@ -39,6 +38,14 @@ spring:
     default-schema: public
     liquibase-schema: public
 
+  # --- 关闭的中间件自动配置 ---
+  autoconfigure:
+    exclude:
+      - tech.powerjob.worker.autoconfigure.PowerJobAutoConfiguration
+      - org.springframework.boot.pulsar.autoconfigure.PulsarAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration
 # ===================================================================
 # ORM 框架 (Jimmer)
 # ===================================================================
@@ -55,30 +62,6 @@ jimmer:
   # 缓存配置
   cache:
     enabled: false  # 在 profile 配置中开启
-
-# ===================================================================
-# 消息队列 (Pulsar)
-# ===================================================================
-spring.pulsar:
-  client:
-    service-url: pulsar://localhost:6650
-    operation-timeout: 30s
-    connection-timeout: 10s
-  producer:
-    name: ${spring.application.name}-producer
-    send-timeout: 30s
-    batching-enabled: true
-  consumer:
-    subscription:
-      name: ${spring.application.name}-subscription
-      mode: durable
-      type: shared
-    dead-letter-policy:
-      max-redeliver-count: 3
-      dead-letter-topic: persistent://public/default/dlq
-  listener:
-    concurrency: 4
-    observation-enabled: true
 
 # ===================================================================
 # 流程编排引擎 (LiteFlow)
@@ -154,13 +137,23 @@ springdoc:
 # 应用自定义配置
 # ===================================================================
 app:
+  # 缓存配置
+  cache:
+    enabled: true  # 缓存系统总开关
+    redis:
+      enabled: false  # Redis 缓存开关(默认关闭,生产环境开启)
+
   messaging:
     pulsar:
-      enabled: true
+      enabled: false  # 默认关闭，在需要的环境中开启
       default-tenant: public
       default-namespace: default
       event-topic-prefix: domain-events
       dead-letter-topic: dlq
+      client:
+        service-url: pulsar://localhost:6650
+        operation-timeout-seconds: 30
+        connection-timeout-seconds: 10
       consumer:
         subscription-prefix: ${spring.application.name}
         concurrency: 4

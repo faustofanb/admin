@@ -1,4 +1,4 @@
-package io.github.faustofan.admin.shared.infrastructure.config.async
+package io.github.faustofan.admin.shared.infrastructure.async.config
 
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.util.concurrent.Executor
 import java.util.concurrent.ThreadFactory
+import java.util.concurrent.ThreadPoolExecutor
 
 /**
  * 虚拟线程配置
@@ -102,7 +103,7 @@ class VirtualThreadConfig: AsyncConfigurer {
             setWaitForTasksToCompleteOnShutdown(true)
             setAwaitTerminationSeconds(60)
             setTaskDecorator(ContextPropagatingTaskDecorator())
-            setRejectedExecutionHandler(java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy())
+            setRejectedExecutionHandler(ThreadPoolExecutor.CallerRunsPolicy())
             initialize()
         }
     }

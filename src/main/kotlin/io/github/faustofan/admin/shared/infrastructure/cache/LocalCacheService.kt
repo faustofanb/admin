@@ -3,7 +3,6 @@ package io.github.faustofan.admin.shared.infrastructure.cache
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
@@ -11,11 +10,12 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Caffeine 本地缓存实现
  *
- * 提供本地内存缓存能力，适合单机部署场景
+ * 提供本地内存缓存能力，适合单机部署场景或作为 Redis 的降级方案
  * 不支持分布式锁和布隆过滤器等分布式特性
+ *
+ * 注：始终创建此 Bean 作为默认实现，当 Redis 可用时，CacheService 会优先使用 Redis
  */
 @Service("localCacheService")
-@ConditionalOnMissingBean(name = ["redisCacheService"])
 class LocalCacheService : CacheOperations {
     private val log = LoggerFactory.getLogger(LocalCacheService::class.java)
 

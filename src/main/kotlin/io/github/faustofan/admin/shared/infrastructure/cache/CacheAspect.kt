@@ -4,9 +4,8 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
-import org.redisson.api.RedissonClient
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.expression.MethodBasedEvaluationContext
 import org.springframework.core.DefaultParameterNameDiscoverer
 import org.springframework.core.annotation.Order
@@ -18,11 +17,12 @@ import java.time.Duration
  * 缓存切面
  *
  * 处理 @Cached, @CacheEvict, @CacheEvicts, @CachePut 注解
+ * 始终启用,会自动降级到本地缓存 (Caffeine) 当 Redis 不可用时
  */
 @Aspect
 @Component
 @Order(1)
-@ConditionalOnBean(RedissonClient::class)
+@ConditionalOnProperty(prefix = "app.cache", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class CacheAspect(
     private val cacheService: CacheService
 ) {

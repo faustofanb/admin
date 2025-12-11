@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * 负责动态注册、启停消费者，支持协程处理消息
  */
 @Component
-@ConditionalOnBean(PulsarClient::class)
+@ConditionalOnBean(PulsarAutoConfiguration::class)
 class PulsarConsumerManager(
     private val pulsarClient: PulsarClient,
     private val topicResolver: TopicResolver,

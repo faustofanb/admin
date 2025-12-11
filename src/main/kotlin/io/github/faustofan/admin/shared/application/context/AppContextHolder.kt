@@ -23,11 +23,24 @@ object AppContextHolder {
     /**
      * 获取当前线程的应用上下文。
      *
-     * @return 当前线程的 AppContext 实例，可能为 null
+     * @return 当前线程的 AppContext 实例
+     * @throws SysException 如果上下文未设置
      */
     fun get(): AppContext {
         return CONTEXT.get() ?: throw SysException(message = "应用上下文未设置")
     }
+
+    /**
+     * 获取当前线程的应用上下文（可空版本）。
+     *
+     * 用于某些场景（如登录）可能没有上下文的情况
+     *
+     * @return 当前线程的 AppContext 实例，如果未设置则返回 null
+     */
+    fun getOrNull(): AppContext? {
+        return CONTEXT.get()
+    }
+
     /**
      * 清除当前线程的应用上下文，防止内存泄漏。
      */

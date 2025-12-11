@@ -1,5 +1,6 @@
 package io.github.faustofan.admin.shared.infrastructure.config.async
 
+import io.github.faustofan.admin.shared.infrastructure.async.config.CoroutineConfig
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

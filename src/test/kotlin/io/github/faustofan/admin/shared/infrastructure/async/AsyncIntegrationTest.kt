@@ -2,9 +2,9 @@ package io.github.faustofan.admin.shared.infrastructure.async
 
 import io.github.faustofan.admin.shared.application.context.AppContext
 import io.github.faustofan.admin.shared.application.context.AppContextHolder
+import io.github.faustofan.admin.shared.infrastructure.async.config.CoroutineConfig
+import io.github.faustofan.admin.shared.infrastructure.async.config.VirtualThreadConfig
 import io.github.faustofan.admin.shared.infrastructure.async.metrics.AsyncMetricsService
-import io.github.faustofan.admin.shared.infrastructure.config.async.CoroutineConfig
-import io.github.faustofan.admin.shared.infrastructure.config.async.VirtualThreadConfig
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.AfterEach

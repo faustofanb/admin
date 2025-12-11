@@ -18,6 +18,7 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(BizException::class)
     fun handleBizException(e: BizException): ApiResponse<Nothing> {
+        e.printStackTrace()
         return ApiResponse(
             code = e.code,
             message = e.message
@@ -29,6 +30,7 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(SysException::class)
     fun handleSysException(e: SysException): ApiResponse<Nothing> {
+        e.printStackTrace()
         return ApiResponse(
             code = e.code,
             message = e.message
@@ -40,6 +42,7 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException::class, BindException::class)
     fun handleValidationException(e: Exception): ApiResponse<Nothing> {
+        e.printStackTrace()
         val msg = when (e) {
             is MethodArgumentNotValidException -> e.bindingResult.allErrors.joinToString("; ") { it.defaultMessage ?: "" }
             is BindException -> e.bindingResult.allErrors.joinToString("; ") { it.defaultMessage ?: "" }
@@ -56,6 +59,7 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(ThirdPartyException::class)
     fun handleThirdPartyException(e: ThirdPartyException): ApiResponse<Nothing> {
+        e.printStackTrace()
         return ApiResponse(
             code = e.code,
             message = e.message

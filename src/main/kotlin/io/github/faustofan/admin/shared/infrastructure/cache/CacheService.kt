@@ -3,6 +3,7 @@ package io.github.faustofan.admin.shared.infrastructure.cache
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.annotation.Lazy
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -15,13 +16,15 @@ import java.time.Duration
  */
 @Service
 @Primary
+@Lazy
 class CacheService(
     @field:Autowired(required = false)
     @field:Qualifier("redisCacheService")
+    @field:Lazy
     private val redisCacheService: RedisCacheService?,
-    @field:Autowired(required = false)
+    @field:Autowired(required = true)
     @field:Qualifier("localCacheService")
-    private val localCacheService: LocalCacheService?
+    private val localCacheService: LocalCacheService
 ) : CacheOperations {
     private val log = LoggerFactory.getLogger(CacheService::class.java)
 
@@ -31,16 +34,18 @@ class CacheService(
     }
 
     // 选择实际的缓存实现
-    private val delegate: CacheOperations = redisCacheService ?: localCacheService
-        ?: throw IllegalStateException("No cache implementation available")
-
-    init {
-        val cacheType = when (delegate) {
-            is RedisCacheService -> "RedisCacheService (distributed)"
-            is LocalCacheService -> "LocalCacheService (local)"
-            else -> "Unknown"
+    private val delegate: CacheOperations by lazy {
+        (redisCacheService ?: localCacheService).also {
+            val cacheType = when (it) {
+                is RedisCacheService -> "RedisCacheService (distributed)"
+                is LocalCacheService -> "LocalCacheService (local)"
+                else -> "Unknown"
+            }
+            log.info("========================================")
+            log.info("CacheService 初始化完成")
+            log.info("使用实现: {}", cacheType)
+            log.info("========================================")
         }
-        log.info("CacheService initialized with: {}", cacheType)
     }
 
     // ==========================================

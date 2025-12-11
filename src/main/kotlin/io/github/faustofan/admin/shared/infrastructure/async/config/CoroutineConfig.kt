@@ -1,4 +1,4 @@
-package io.github.faustofan.admin.shared.infrastructure.config.async
+package io.github.faustofan.admin.shared.infrastructure.async.config
 
 import kotlinx.coroutines.*
 import org.slf4j.LoggerFactory

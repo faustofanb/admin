@@ -20,7 +20,9 @@ import org.springframework.stereotype.Component
 class TenantFilter : KFilter<TenantAware> {
 
     override fun filter(args: KFilterArgs<TenantAware>) {
-        val context = AppContextHolder.get()
+        // 如果上下文为空（如登录场景），不应用租户过滤
+        // 业务层应自行传入 tenantId 参数进行过滤
+        val context = AppContextHolder.getOrNull() ?: return
 
         // 超级管理员跳过租户过滤
         if (context.isSuperAdmin) {
