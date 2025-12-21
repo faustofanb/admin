@@ -1,0 +1,100 @@
+export io.github.faustofan.admin.system.domain.model.SysUser
+    -> package io.github.faustofan.admin.system.dto
+
+import jakarta.validation.constraints.Pattern
+/**
+ * [Query] 用户搜索参数
+ */
+specification SysUserSearchQuery {
+    like/i(username)
+    like/i(nickname)
+
+    // 筛选状态
+    status
+
+    // 筛选部门
+    associatedIdEq(org) as orgId
+}
+
+/**
+ * [Command] 创建用户
+ */
+input SysUserCreateCommand {
+
+    #allScalars(this)
+
+    tenantId
+
+    @Pattern(
+        regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        message = "邮箱格式严格校验失败"
+    )
+    email
+
+    @Pattern(
+        regexp = "^1[3-9]\\d{9}$",
+        message = "请输入正确的11位手机号码"
+    )
+    mobile
+
+    // 关联组织
+    id(org) as orgId
+
+    // 关联角色 (多对多需要别名)
+    id(roles) as roleIds
+}
+
+/**
+ * [Command] 修改用户
+ */
+input SysUserUpdateCommand {
+    nickname
+    status
+
+    // 关联组织
+    id(org) as orgId
+
+    // 关联角色
+    id(roles) as roleIds
+}
+
+/**
+ * [View] 用户详情/列表视图
+ */
+SysUserView {
+    #allScalars(this)
+
+    // 绝对不能返回密码
+    -password
+
+    // 展平部门名称
+    flat(org) {
+        name as orgName
+    }
+
+    // 返回拥有的角色ID列表
+    id(roles) as roleIds
+}
+
+/**
+ * 用户登录视图
+ */
+SysUserLoginView {
+    #allScalars
+
+    org {
+        #allScalars
+    }
+
+    roles {
+        #allScalars
+
+        menus {
+            #allScalars
+        }
+
+        policies {
+            #allScalars
+        }
+    }
+}

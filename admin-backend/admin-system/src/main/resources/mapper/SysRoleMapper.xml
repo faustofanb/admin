@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.github.faustofan.admin.system.infrastructure.mapper.SysRoleMapper">
+
+    <!--
+        查询传入角色ID中，不存在于 role 表的部分
+        PostgreSQL 专用（unnest + EXCEPT）
+    -->
+    <select id="findMissingRoleIds" resultType="long">
+        <if test="ids != null and ids.size() > 0">
+            SELECT unnest(
+                ARRAY[
+                <foreach collection="ids" item="id" separator=",">
+                    #{id}
+                </foreach>
+                ]
+            ) AS id
+            EXCEPT
+            SELECT id FROM sys_role
+        </if>
+
+        <!-- 防御性兜底，避免 ids 为空时报 SQL 错 -->
+        <if test="ids == null or ids.size() == 0">
+            SELECT NULL WHERE 1 = 0
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,121 @@
+package io.github.faustofan.admin.auth.domain.service;
+
+import io.github.faustofan.admin.auth.domain.model.LoginUser;
+import io.github.faustofan.admin.shared.cache.CacheKeys;
+import io.github.faustofan.admin.shared.common.exception.BizException;
+import io.github.faustofan.admin.shared.common.exception.UserErrorCode;
+import io.github.faustofan.admin.system.domain.enums.UserStatus;
+import io.github.faustofan.admin.system.dto.SysUserLoginView;
+import io.github.faustofan.admin.system.infrastructure.reponsitory.SysUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
+import java.util.Objects;
+
+/**
+ * 用户详情服务
+ * 实现 Spring Security 的 UserDetailsService 接口
+ */
+@Service
+@CacheConfig(cacheNames = CacheKeys.AUTH_USER_CACHE)
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final SysUserRepository userRepository;
+
+    public UserDetailsServiceImpl(SysUserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * 根据用户名加载用户信息
+     * Spring Security 标准接口，多租户场景下请使用 loadUserByUsernameAndTenant
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        throw new UsernameNotFoundException("请使用 loadUserByUsernameAndTenant 方法");
+    }
+
+    /**
+     * 场景 A: 登录时加载
+     * 缓存 Key 格式: name:{tenantId}:{username}
+     * sync = true: 防止高并发登录击穿 DB
+     */
+    @Cacheable(key = CacheKeys.AUTH_KEY_NAME + "+ #tenantId + ':' + #username", sync = true)
+    public LoginUser loadUserByUsernameAndTenant(String username, Long tenantId) {
+        LoginUser user = loadUserFromDatabase(username, tenantId);
+        if (user == null) {
+            throw new BizException(UserErrorCode.USER_NOT_EXIST_OR_DISABLED);
+        }
+        return user;
+    }
+
+    /**
+     * 场景 B: 刷新 Token / 获取当前用户信息时加载
+     * 缓存 Key 格式: id:{userId}
+     * 注意：这里和上面是不同的 Key，缓存了两份数据。
+     * 权衡：冗余存储换取 O(1) 的读取速度，更新时需要同时清除两份。
+     */
+    @Cacheable(key = CacheKeys.AUTH_KEY_ID + "+ #userId", sync = true)
+    public LoginUser loadUserById(Long userId) {
+        var userEntity = userRepository.findByIdWithRoles(userId);
+        if (userEntity == null) {
+            throw new BizException(UserErrorCode.USER_NOT_EXIST);
+        }
+        LoginUser user = loadUserFromDatabase(userEntity.getUsername(), userEntity.getTenantId());
+        if (user == null) {
+            throw new BizException(UserErrorCode.USER_NOT_EXIST);
+        }
+        return user;
+    }
+
+    /**
+     * 从数据库加载用户信息
+     */
+    private LoginUser loadUserFromDatabase(String username, Long tenantId) {
+        var user = userRepository.findByUsernameWithRoles(username, tenantId);
+        if (user == null) {
+            return null;
+        }
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new BizException(UserErrorCode.USER_DISABLED);
+        }
+
+        var roles = user.getRoles();
+        boolean isSuperAdmin = user.isSuperAdmin();
+
+        var permissions = roles.stream()
+                .flatMap(role -> role.getMenus().stream())
+                .map(SysUserLoginView.TargetOf_roles.TargetOf_menus::getPermCode)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+
+        var policyContents = roles.stream()
+                .flatMap(role -> role.getPolicies().stream())
+                .map(SysUserLoginView.TargetOf_roles.TargetOf_policies::getPolicyContent)
+                .collect(Collectors.toUnmodifiableSet());
+
+        return new LoginUser(
+                user.getId(),
+                user.getTenantId(),
+                user.getOrg().getId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getNickname(),
+                roles.stream().map(role -> role.getName()).collect(Collectors.toUnmodifiableSet()),
+                permissions,
+                policyContents,
+                isSuperAdmin,
+                user.getStatus() == UserStatus.ACTIVE,
+                true,
+                true,
+                true);
+    }
+}

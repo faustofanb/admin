@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.faustofan.admin</groupId>
+        <artifactId>admin-backend</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <artifactId>admin-shared</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>admin-shared-persistence</module>
+        <module>admin-shared-cache</module>
+        <module>admin-shared-messaging</module>
+        <module>admin-shared-bytecode</module>
+        <module>admin-shared-distributed</module>
+        <module>admin-shared-async</module>
+        <module>admin-shared-web</module>
+        <module>admin-shared-common</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+</project>

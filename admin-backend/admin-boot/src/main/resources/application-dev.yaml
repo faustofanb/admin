@@ -1,0 +1,134 @@
+# ===================================================================
+# 开发环境配置 (application-dev.yaml)
+# ===================================================================
+server:
+  port: 80
+  shutdown: immediate
+  max-http-request-header-size: 16KB
+
+spring:
+  # --- 数据源 ---
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/admin
+    username: admin
+    password: password
+  flyway:
+    enabled: false
+    # 脚本存放位置 (默认为 classpath:db/migration)
+    locations: classpath:db/migration
+    # 如果数据库非空，是否自动基线化 (建议开发环境 true，生产环境谨慎)
+    baseline-on-migrate: true
+    # 基线版本号
+    baseline-version: 0
+    # 验证脚本是否被修改过 (防止有人修改了已执行的 V1__xxx.sql 导致环境不一致)
+    validate-on-migrate: true
+    # 允许乱序执行迁移 (建议 false，严格按版本号执行)
+    out-of-order: false
+  # --- Redis ---
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      ssl:
+        enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.pulsar.PulsarAutoConfiguration
+# ===================================================================
+# Jimmer (开发环境)
+# ===================================================================
+jimmer:
+  show-sql: false
+  pretty-sql: false
+  inline-sql-variables: false
+  client:
+    ts:
+      path: /ts.zip
+# ===================================================================
+# P6Spy SQL 日志 (开发环境启用)
+# ===================================================================
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: true
+      logging: slf4j
+
+# ===================================================================
+# PowerJob (开发环境关闭)
+# ===================================================================
+#powerjob:
+#  worker:
+#    enabled: false
+
+# ===================================================================
+# Actuator (开发环境全开)
+# ===================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+# ===================================================================
+# 文档配置 (Knife4j / SpringDoc)
+# ===================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  # 彻底禁用原生 Swagger UI
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  group-configs:
+    - group: "default"
+      paths-to-match: "/**"
+      packages-to-scan: "io.github.faustofan.admin"
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    enable-swagger-models: true
+    enable-open-api: true
+# ===================================================================
+# 日志配置 (开发环境)
+# ===================================================================
+logging:
+  pattern:
+    console: "%d{HH:mm:ss} %clr(%-5level) %clr([%15.15thread]){faint} %clr(%-40.40logger{39}){cyan} : %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%15.15thread] %-40.40logger{39} : %msg%n"
+  level:
+    root: INFO
+    org.springframework.boot: INFO
+    org.springframework.context.annotation.ConfigurationClassPostProcessor: ERROR
+    org.springframework.security: WARN
+    org.apache.catalina: WARN
+    org.apache.tomcat: WARN
+    com.zaxxer.hikari: INFO
+    org.babyfish.jimmer.sql: WARN
+    p6spy: INFO
+# ===================================================================
+# 应用配置 (开发环境)
+# ===================================================================
+app:
+  http-log:
+    enabled: true
+    mask-enabled: false
+    minimum-status: 0
+  security:
+    whitelist:
+      - /doc.html
+      - /webjars/**
+      - /actuator/**
+      - /swagger-ui.html
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /ts.zip
+
+

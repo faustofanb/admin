@@ -1,0 +1,57 @@
+# ===================================================================
+# 通用配置 (所有环境共享)
+# ===================================================================
+spring:
+  profiles:
+    active: dev
+  application:
+    name: admin-backend
+
+  # --- 虚拟线程 (JDK 21+) ---
+  threads:
+    virtual:
+      enabled: true
+
+  # --- JSON 序列化 (Jackson) ---
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+    time-zone: Asia/Shanghai
+
+  # --- HikariCP 连接池通用配置 ---
+  datasource:
+    hikari:
+      pool-name: AdminHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+      auto-commit: true
+# ===================================================================
+# ORM 框架 (Jimmer + MyBatis)
+# ===================================================================
+jimmer:
+  language: java
+  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
+  database-validation-mode: none
+  executor-context-prefixes:
+    - io.github.faustofan.admin
+  trigger-type: transaction_only
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+# ===================================================================
+# 日志
+# ===================================================================
+logging:
+  level:
+    org.mybatis: OFF
+    org.mybatis.spring: OFF
+
+
+
+
