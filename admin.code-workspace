@@ -1,10 +1,20 @@
 {
 	"folders": [
+        {
+            "name": "全部",
+            "path": "."
+        },
+        {
+            "name": "开发容器",
+            "path": ".devcontainer"
+        },
 		{
+            "name": "后端服务",
 			"path": "admin-backend"
 		},
 		{
-			"path": "admin-fronted/vue-vben-admin"
+            "name": "前端服务",
+			"path": "admin-fronted/vue-vben-admin/apps/web-antd"
 		}
 	],
 	"settings": {
