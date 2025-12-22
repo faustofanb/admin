@@ -25,11 +25,20 @@
 		"maven.view": "hierarchical",
 		"java.configuration.updateBuildConfiguration": "automatic",
 		"cSpell.words": [
+			"babyfish",
+			"codehaus",
 			"faustofan",
+			"jimmer",
 			"jjwt",
 			"jsonwebtoken",
+			"knif",
+			"mybatis",
+			"powerjob",
 			"Redisson",
-			"springframework"
+			"SPEL",
+			"springdoc",
+			"springframework",
+			"sqlformatter"
 		],
 		"dbcode.connections": [
 			{
@@ -50,6 +59,8 @@
 				"postConnectionSqlType": "inline",
 				"connectionTimeout": 30
 			}
-		]
+		],
+		"java.dependency.packagePresentation": "hierarchical",
+		"java.project.explorer.showNonJavaResources": false
 	}
 }

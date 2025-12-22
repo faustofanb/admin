@@ -1,8 +1,9 @@
 package io.github.faustofan.admin.shared.cache.constants;
 
+import io.github.faustofan.admin.shared.common.constant.GlobalConstants;
+
 /**
- * 缓存常量池 (扁平化设计)
- * 仅包含 Spring Cache 相关的 CacheName 和 SpEL Key 前缀
+ * Spring Cache 常量池
  */
 public final class CacheKeys {
 
@@ -10,41 +11,42 @@ public final class CacheKeys {
         throw new UnsupportedOperationException("Constants class cannot be instantiated");
     }
 
-    // 全局前缀 (内部使用)
-    private static final String APP_PREFIX = "ADMIN:CACHE:";
+    // 统一缓存前缀: ADMIN:CACHE:
+    private static final String CACHE_PREFIX = GlobalConstants.ROOT_PREFIX + ":CACHE:";
 
     // ========================================================================
-    // 1. Cache Names (缓存区名称)
-    // 用于 @CacheConfig(cacheNames = ...) 和 CachePolicy
+    // Cache Names (用于 @Cacheable(cacheNames = ...))
+    // 建议按 TTL 策略或大业务块命名
     // ========================================================================
-
-    /** 默认缓存区 */
-    public static final String DEFAULT_CACHE = APP_PREFIX + "DEFAULT";
-
-    /** 认证用户缓存 (Map结构) */
-    public static final String AUTH_USER_CACHE = APP_PREFIX + "AUTH:USER";
-
-    /** 系统配置缓存 */
-    public static final String SYS_CONFIG_CACHE = APP_PREFIX + "SYS:CONFIG";
+    
+    public static final String CACHE_DEFAULT = CACHE_PREFIX + "DEFAULT";
+    public static final String CACHE_AUTH_USER = CACHE_PREFIX + "AUTH:USER";
+    public static final String CACHE_SYS_CONFIG = CACHE_PREFIX + "SYS:CONFIG";
 
     // ========================================================================
-    // 2. SpEL Key Prefixes (Key前缀)
-    // 用于 @Cacheable(key = ...) 拼接
-    // 注意：值必须包含单引号 "'...'"，这是为了符合 Spring EL 语法
+    // Key Prefixes (用于 @Cacheable(key = ...))
+    // 提供 raw 字符串，SpEL 拼接建议在业务层或封装的 Util 中处理，
+    // 或者提供明确带单引号的常量
     // ========================================================================
 
-    // --- Auth 模块 ---
-    /** 这里的 key 最终解析为: ID:123 */
-    public static final String AUTH_KEY_ID = "'ID:'";
+    /** ID前缀 -> 'ID:' */
+    public static final String KEY_ID_SPEL = "'ID:'";
+    public static final String KEY_ID = spelToRaw(KEY_ID_SPEL);
+    /** Name前缀 -> 'NAME:' */
+    public static final String KEY_NAME_SPEL = "'NAME:'";
+    public static final String KEY_NAME = spelToRaw(KEY_NAME_SPEL);
 
-    /** 这里的 key 最终解析为: NAME:1001:admin */
-    public static final String AUTH_KEY_NAME = "'NAME:'";
-
-    // --- System 模块 ---
-    public static final String SYS_KEY_GLOBAL = "'GLOBAL:'";
-
+    /** 
+     * 辅助方法：如果不想在代码里写 SpEL 字符串，可以使用 KeyGenerator，
+     * 但如果必须用 SpEL 常量，保持上面的格式即可。
+     */
     // ========================================================================
     // 3. Topics (缓存同步广播通道)
     // ========================================================================
-    public static final String TOPIC_L1_SYNC = APP_PREFIX + "TOPIC:L1_SYNC";
+    public static final String TOPIC_L1_SYNC = CACHE_PREFIX + "TOPIC:L1_SYNC";
+
+    // 辅助方法：将 SpEL 常量转换为 raw 字符串
+    private static String spelToRaw(String spel) {
+        return spel.replace("'", "");
+    }
 }

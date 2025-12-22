@@ -79,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 只接受 access token
                 if ("access".equals(tokenType)) {
                     Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
-                    AppContextHolder.setContext(SystemConstants.SYSTEM_APP_CONTEXT);
+                    AppContextHolder.setContext(SystemConstants.Identity.SYSTEM_CONTEXT);
                     var loginUser = userDetailsService.loadUserById(userId);
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -106,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             } else if(jwt == null){
                 //第一次登录，没有携带token，设置系统级上下文
-                AppContextHolder.setContext(SystemConstants.SYSTEM_APP_CONTEXT);
+                AppContextHolder.setContext(SystemConstants.Identity.SYSTEM_CONTEXT);
             }
         } catch (Exception e) {
             logger.error("Could not set user authentication in security context", e);

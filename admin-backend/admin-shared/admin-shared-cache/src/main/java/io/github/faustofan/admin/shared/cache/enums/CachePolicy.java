@@ -12,14 +12,14 @@ import io.github.faustofan.admin.shared.cache.constants.CacheKeys;
 public enum CachePolicy {
 
     // 默认策略：L1=10分钟, L2=1小时
-    DEFAULT(CacheKeys.DEFAULT_CACHE, Duration.ofMinutes(10), Duration.ofHours(1), 1000),
+    DEFAULT(CacheKeys.CACHE_DEFAULT, Duration.ofMinutes(10), Duration.ofHours(1), 1000),
 
     // 系统配置：变动少，缓存久 (L1=1小时, L2=24小时)
-    SYS_CONFIG(CacheKeys.SYS_CONFIG_CACHE, Duration.ofHours(1), Duration.ofHours(24), 5000),
+    SYS_CONFIG(CacheKeys.CACHE_SYS_CONFIG, Duration.ofHours(1), Duration.ofHours(24), 5000),
 
     // 用户认证信息：L1 保留 1 分钟防抖，L2 保留 30 分钟
     // 为什么 L1 只有 1 分钟？为了让权限变更/封号能较快在所有节点生效
-    USER_AUTH(CacheKeys.AUTH_USER_CACHE, Duration.ofMinutes(1), Duration.ofMinutes(30), 2000);
+    USER_AUTH(CacheKeys.CACHE_AUTH_USER, Duration.ofMinutes(1), Duration.ofMinutes(30), 2000);
 
     private final String cacheName;
     private final Duration l1Ttl;

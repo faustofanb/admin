@@ -27,10 +27,6 @@ public class AuthUserEventListener {
 
     private final CacheUtils cacheUtils;
 
-    // 预处理 Key 前缀 (去掉 SpEL 的单引号)
-    private static final String PREFIX_ID = CacheKeys.AUTH_KEY_ID.replace("'", "");
-    private static final String PREFIX_NAME = CacheKeys.AUTH_KEY_NAME.replace("'", "");
-
     public AuthUserEventListener(CacheUtils cacheUtils) {
         this.cacheUtils = cacheUtils;
     }
@@ -64,16 +60,16 @@ public class AuthUserEventListener {
      */
     private void evictAuthCache(Long userId, Long tenantId, String username) {
         // 1. 构建 ID 维度 Key -> ID:1001
-        String idKey = PREFIX_ID + userId;
+        String idKey = CacheKeys.KEY_ID + userId;
 
         // 2. 构建 Username 维度 Key -> NAME:1001:admin
         // 注意：这里一定要判空，尽管 tenantId 通常不为空，但在非多租户模式下需注意
         String safeTenantId = (tenantId == null) ? "0" : tenantId.toString();
-        String nameKey = PREFIX_NAME + safeTenantId + ":" + username;
+        String nameKey = CacheKeys.KEY_NAME + safeTenantId + ":" + username;
 
         // 3. 执行清理
-        cacheUtils.evict(CacheKeys.AUTH_USER_CACHE, idKey);
-        cacheUtils.evict(CacheKeys.AUTH_USER_CACHE, nameKey);
+        cacheUtils.evict(CacheKeys.CACHE_AUTH_USER, idKey);
+        cacheUtils.evict(CacheKeys.CACHE_AUTH_USER, nameKey);
 
         log.debug("Evicted keys: [{}, {}]", idKey, nameKey);
     }

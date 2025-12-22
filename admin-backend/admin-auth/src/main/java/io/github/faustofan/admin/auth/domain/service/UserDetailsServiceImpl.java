@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * 实现 Spring Security 的 UserDetailsService 接口
  */
 @Service
-@CacheConfig(cacheNames = CacheKeys.AUTH_USER_CACHE)
+@CacheConfig(cacheNames = CacheKeys.CACHE_AUTH_USER)
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -59,7 +59,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * 缓存 Key 格式: name:{tenantId}:{username}
      * sync = true: 防止高并发登录击穿 DB
      */
-    @Cacheable(key = CacheKeys.AUTH_KEY_NAME + "+ #tenantId + ':' + #username", sync = true)
+    @Cacheable(key = CacheKeys.KEY_NAME_SPEL + "+ #tenantId + ':' + #username", sync = true)
     public LoginUser loadUserByUsernameAndTenant(String username, Long tenantId) {
         LoginUser user = loadUserFromDatabase(username, tenantId);
         if (user == null) {
@@ -74,7 +74,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * 注意：这里和上面是不同的 Key，缓存了两份数据。
      * 权衡：冗余存储换取 O(1) 的读取速度，更新时需要同时清除两份。
      */
-    @Cacheable(key = CacheKeys.AUTH_KEY_ID + "+ #userId", sync = true)
+    @Cacheable(key = CacheKeys.KEY_ID_SPEL + "+ #userId", sync = true)
     public LoginUser loadUserById(Long userId) {
         var userEntity = userRepository.findByIdWithRoles(userId);
         if (userEntity == null) {

@@ -14,7 +14,7 @@ spring:
     username: admin
     password: password
   flyway:
-    enabled: true
+    enabled: false
     # 脚本存放位置 (默认为 classpath:db/migration)
     locations: classpath:db/migration
     # 如果数据库非空，是否自动基线化 (建议开发环境 true，生产环境谨慎)
