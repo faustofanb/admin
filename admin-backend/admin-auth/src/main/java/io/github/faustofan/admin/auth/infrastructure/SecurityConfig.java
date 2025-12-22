@@ -1,16 +1,17 @@
 package io.github.faustofan.admin.auth.infrastructure;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.faustofan.admin.shared.common.dto.ApiResponse;
-import io.github.faustofan.admin.shared.common.exception.CommonErrorCode;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,20 +23,21 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.github.faustofan.admin.shared.common.dto.ApiResponse;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
 
 /**
  * 安全配置类，负责配置 Spring Security 的核心安全策略。
  * <p>
  * 主要功能包括：
  * <ul>
- *     <li>合并默认和自定义白名单，配置无需认证的接口</li>
- *     <li>配置 JWT 认证过滤器，实现无状态认证</li>
- *     <li>配置 CORS 跨域策略</li>
- *     <li>自定义未认证和权限不足时的 JSON 响应</li>
- *     <li>禁用 CSRF、表单登录、HTTP Basic、Session 等</li>
+ * <li>合并默认和自定义白名单，配置无需认证的接口</li>
+ * <li>配置 JWT 认证过滤器，实现无状态认证</li>
+ * <li>配置 CORS 跨域策略</li>
+ * <li>自定义未认证和权限不足时的 JSON 响应</li>
+ * <li>禁用 CSRF、表单登录、HTTP Basic、Session 等</li>
  * </ul>
  */
 @Configuration
@@ -68,8 +70,7 @@ public class SecurityConfig {
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             ObjectMapper objectMapper,
-            SecurityProperties securityProperties
-    ) {
+            SecurityProperties securityProperties) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.objectMapper = objectMapper;
         this.securityProperties = securityProperties;
@@ -87,55 +88,49 @@ public class SecurityConfig {
         // 合并默认白名单和自定义白名单
         String[] allWhiteList = Stream.concat(
                 Arrays.stream(DEFAULT_WHITE_LIST),
-                securityProperties.getWhitelist().stream()
-        ).toArray(String[]::new);
+                securityProperties.getWhitelist().stream()).toArray(String[]::new);
 
         http
-            // 禁用 CSRF
-            .csrf(AbstractHttpConfigurer::disable)
-            // 配置 CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // 无状态会话
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // 禁用 HTTP Basic
-            .httpBasic(AbstractHttpConfigurer::disable)
-            // 禁用表单登录
-            .formLogin(AbstractHttpConfigurer::disable)
-            // 禁用 X-Frame-Options
-            .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-            // 配置请求授权
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(allWhiteList).permitAll()
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .anyRequest().authenticated()
-            )
-            // 添加 JWT 认证过滤器
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            // 配置异常处理
-            .exceptionHandling(exceptions -> {
-                // 未认证时返回 JSON
-                exceptions.authenticationEntryPoint((request, response, authException) -> {
-                    response.setCharacterEncoding("UTF-8");
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    response.setStatus(401);
-                    response.getWriter().write(
-                            objectMapper.writeValueAsString(
-                                ApiResponse.fail(CommonErrorCode.UNAUTHORIZED)
-                            )
-                    );
+                // 禁用 CSRF
+                .csrf(AbstractHttpConfigurer::disable)
+                // 配置 CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // 无状态会话
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 禁用 HTTP Basic
+                .httpBasic(AbstractHttpConfigurer::disable)
+                // 禁用表单登录
+                .formLogin(AbstractHttpConfigurer::disable)
+                // 禁用 X-Frame-Options
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                // 配置请求授权
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(allWhiteList).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .anyRequest().authenticated())
+                // 添加 JWT 认证过滤器
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // 配置异常处理
+                .exceptionHandling(exceptions -> {
+                    // 未认证时返回 JSON
+                    exceptions.authenticationEntryPoint((request, response, authException) -> {
+                        response.setCharacterEncoding("UTF-8");
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setStatus(401);
+                        response.getWriter().write(
+                                objectMapper.writeValueAsString(
+                                        ApiResponse.fail(UserErrorCode.UNAUTHORIZED)));
+                    });
+                    // 权限不足时返回 JSON
+                    exceptions.accessDeniedHandler((request, response, accessDeniedException) -> {
+                        response.setCharacterEncoding("UTF-8");
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setStatus(403);
+                        response.getWriter().write(
+                                objectMapper.writeValueAsString(
+                                        ApiResponse.fail(UserErrorCode.FORBIDDEN)));
+                    });
                 });
-                // 权限不足时返回 JSON
-                exceptions.accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.setCharacterEncoding("UTF-8");
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    response.setStatus(403);
-                    response.getWriter().write(
-                            objectMapper.writeValueAsString(
-                                    ApiResponse.fail(CommonErrorCode.FORBIDDEN)
-                            )
-                    );
-                });
-            });
 
         return http.build();
     }

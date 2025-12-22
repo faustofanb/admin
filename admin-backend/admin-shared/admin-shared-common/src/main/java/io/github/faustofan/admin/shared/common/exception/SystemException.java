@@ -9,8 +9,11 @@ public class SystemException extends BaseException {
         super(errorCode);
     }
 
+    public SystemException(ErrorCode errorCode, String detailMessage) {
+        super(errorCode, detailMessage);
+    }
+
     public SystemException(ErrorCode errorCode, Throwable cause) {
         super(errorCode, cause);
     }
 }
-

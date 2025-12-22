@@ -13,7 +13,7 @@ public abstract class BaseException extends RuntimeException {
     }
 
     protected BaseException(ErrorCode errorCode, String detailMessage) {
-        super(detailMessage);
+        super(errorCode.getMessage() + ": " + detailMessage);
         this.errorCode = errorCode;
     }
 
@@ -26,4 +26,3 @@ public abstract class BaseException extends RuntimeException {
         return errorCode;
     }
 }
-

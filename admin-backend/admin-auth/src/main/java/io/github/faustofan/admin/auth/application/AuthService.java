@@ -1,5 +1,6 @@
 package io.github.faustofan.admin.auth.application;
 
+import org.apache.pulsar.shade.org.checkerframework.checker.units.qual.t;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -7,8 +8,13 @@ import io.github.faustofan.admin.auth.application.dto.LoginResponse;
 import io.github.faustofan.admin.auth.domain.model.LoginUser;
 import io.github.faustofan.admin.auth.domain.service.UserDetailsServiceImpl;
 import io.github.faustofan.admin.auth.infrastructure.JwtTokenProvider;
+import io.github.faustofan.admin.shared.common.context.AppContextHolder;
 import io.github.faustofan.admin.shared.common.exception.BizException;
-import io.github.faustofan.admin.shared.common.exception.UserErrorCode;
+import io.github.faustofan.admin.shared.common.exception.UserException;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
+import io.github.faustofan.admin.shared.distributed.constants.RedisKeyRegistry;
+import io.github.faustofan.admin.shared.distributed.core.RedisUtil;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 认证服务
@@ -20,14 +26,19 @@ public class AuthService {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtil redisUtil;
+
 
     public AuthService(
             UserDetailsServiceImpl userDetailsService,
             JwtTokenProvider jwtTokenProvider,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            RedisUtil redisUtil
+        ) {
         this.userDetailsService = userDetailsService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
+        this.redisUtil = redisUtil;
     }
 
     /**
@@ -74,6 +85,19 @@ public class AuthService {
 
         // 生成新 Token
         return generateTokens(loginUser);
+    }
+
+    /**
+     * 用户登出
+     */
+    public void logout(HttpServletRequest request) {
+        String token = jwtTokenProvider.extractJwtFromRequest(request);
+
+        if(!jwtTokenProvider.validateToken(token))
+            throw new UserException(UserErrorCode.INVALID_ACCESS_TOKEN);
+
+        redisUtil.addToSet(RedisKeyRegistry.SEC_BLACKLIST, "TOKENS", token);
+        AppContextHolder.clearContext();
     }
 
     /**
