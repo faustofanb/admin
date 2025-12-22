@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.github.faustofan.admin.shared.common.dto.ApiResponse;
 import io.github.faustofan.admin.shared.common.exception.BizException;
-import io.github.faustofan.admin.shared.common.exception.CommonErrorCode;
 import io.github.faustofan.admin.shared.common.exception.SystemException;
 import io.github.faustofan.admin.shared.common.exception.UserException;
+import io.github.faustofan.admin.shared.common.exception.errcode.SystemErrorCode;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
 
 /**
  * 全局异常处理器
@@ -46,9 +47,9 @@ public class GlobalExceptionHandler {
             Matcher matcher = pattern.matcher(message);
             if (matcher.find()) {
                 String fieldName = matcher.group(1);
-                return ApiResponse.fail(CommonErrorCode.PARAM_MISSING, "请求参数缺失必填字段: " + fieldName);
+                return ApiResponse.fail(UserErrorCode.PARAM_MISSING, "请求参数缺失必填字段: " + fieldName);
             }
-            return ApiResponse.fail(CommonErrorCode.PARAM_MISSING, "请求参数缺失必填字段");
+            return ApiResponse.fail(UserErrorCode.PARAM_MISSING, "请求参数缺失必填字段");
         }
 
         // 2. 针对类型转换错误（如 Long 字段传了字符串）
@@ -71,12 +72,12 @@ public class GlobalExceptionHandler {
                     msg += "【" + field + "】";
                 }
                 msg += "类型错误，期望类型为 " + type.substring(type.lastIndexOf('.') + 1) + "，实际传值为 '" + actualValue + "'";
-                return ApiResponse.fail(CommonErrorCode.PARAM_INVALID, msg);
+                return ApiResponse.fail(UserErrorCode.PARAM_INVALID, msg);
             }
         }
 
         // 3. 其他类型的 JSON 错误
-        return ApiResponse.fail(CommonErrorCode.PARAM_INVALID, "请求体 JSON 格式错误，无法解析");
+        return ApiResponse.fail(UserErrorCode.PARAM_INVALID, "请求体 JSON 格式错误，无法解析");
     }
 
     /**
@@ -90,7 +91,7 @@ public class GlobalExceptionHandler {
         String errorMessage = e.getBindingResult().getAllErrors().stream()
                 .map(ObjectError::getDefaultMessage) // 提取 message="xxxx"
                 .collect(Collectors.joining("; "));
-        return ApiResponse.fail(CommonErrorCode.PARAM_INVALID, errorMessage);
+        return ApiResponse.fail(UserErrorCode.PARAM_INVALID, errorMessage);
     }
 
     /**
@@ -136,7 +137,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ApiResponse<?> handleUnknownException(Exception ex) {
         logger.error("Unknown error", ex);
-        return ApiResponse.fail(CommonErrorCode.SYSTEM_ERROR);
+        return ApiResponse.fail(SystemErrorCode.SYSTEM_ERROR);
     }
 
 }

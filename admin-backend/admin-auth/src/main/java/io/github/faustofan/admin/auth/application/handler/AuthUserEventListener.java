@@ -1,19 +1,20 @@
 package io.github.faustofan.admin.auth.application.handler;
 
-import io.github.faustofan.admin.shared.cache.CacheKeys;
-import io.github.faustofan.admin.shared.cache.CacheUtils;
-import io.github.faustofan.admin.shared.messaging.PulsarMessageProvider;
-import io.github.faustofan.admin.shared.messaging.SysMessage;
-import io.github.faustofan.admin.system.domain.constants.SysUserTopics;
-import io.github.faustofan.admin.system.domain.event.UserPasswordChangedEvent;
-import io.github.faustofan.admin.system.domain.event.UserStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.event.EventListener;
+import org.springframework.pulsar.annotation.PulsarListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.pulsar.annotation.PulsarListener;
+
+import io.github.faustofan.admin.shared.cache.constants.CacheKeys;
+import io.github.faustofan.admin.shared.cache.util.CacheUtils;
+import io.github.faustofan.admin.shared.messaging.core.PulsarMessageProvider;
+import io.github.faustofan.admin.shared.messaging.core.SysMessage;
+import io.github.faustofan.admin.system.domain.constants.SysUserTopics;
+import io.github.faustofan.admin.system.domain.event.UserPasswordChangedEvent;
+import io.github.faustofan.admin.system.domain.event.UserStatusChangedEvent;
 
 /**
  * 鉴权模块缓存一致性监听器
@@ -50,10 +51,7 @@ public class AuthUserEventListener {
     /**
      * 场景 2: 远程监听 (状态变更)
      */
-    @PulsarListener(
-            topics = SysUserTopics.USER_STATUS_CHANGED,
-            subscriptionName = "auth-user-cache-evict-sub"
-    )
+    @PulsarListener(topics = SysUserTopics.USER_STATUS_CHANGED, subscriptionName = "auth-user-cache-evict-sub")
     @ConditionalOnBean(PulsarMessageProvider.class)
     public void onRemoteStatusChange(UserStatusChangedEvent event) {
         log.info("Remote status change: user={} status={}", event.username(), event.newStatus());

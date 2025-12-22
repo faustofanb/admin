@@ -1,13 +1,22 @@
 package io.github.faustofan.admin.system.domain.service;
 
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+
+import org.babyfish.jimmer.ImmutableObjects;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.github.faustofan.admin.shared.common.context.AppContextHolder;
 import io.github.faustofan.admin.shared.common.exception.BizException;
-import io.github.faustofan.admin.shared.common.exception.CommonErrorCode;
-import io.github.faustofan.admin.shared.common.exception.UserErrorCode;
 import io.github.faustofan.admin.shared.common.exception.UserException;
-import io.github.faustofan.admin.shared.messaging.MessageBus;
-import io.github.faustofan.admin.shared.messaging.MsgScope;
-import io.github.faustofan.admin.shared.messaging.SysMessage;
+import io.github.faustofan.admin.shared.common.exception.errcode.BizErrorCode;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
+import io.github.faustofan.admin.shared.messaging.core.SysMessage;
+import io.github.faustofan.admin.shared.messaging.enums.MsgScope;
+import io.github.faustofan.admin.shared.messaging.interfaces.MessageBus;
 import io.github.faustofan.admin.system.domain.constants.SysUserTopics;
 import io.github.faustofan.admin.system.domain.enums.UserStatus;
 import io.github.faustofan.admin.system.domain.event.UserCreatedEvent;
@@ -17,14 +26,6 @@ import io.github.faustofan.admin.system.domain.model.Immutables;
 import io.github.faustofan.admin.system.domain.model.SysUser;
 import io.github.faustofan.admin.system.domain.model.SysUserProps;
 import io.github.faustofan.admin.system.infrastructure.reponsitory.SysUserRepository;
-import org.babyfish.jimmer.ImmutableObjects;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 用户领域服务
@@ -44,15 +45,14 @@ public class UserDomainService {
     /**
      * 构造方法，注入依赖
      *
-     * @param userRepository 用户仓储
-     * @param messageBus 消息总线
+     * @param userRepository  用户仓储
+     * @param messageBus      消息总线
      * @param passwordEncoder 密码加密器
      */
     public UserDomainService(
             SysUserRepository userRepository,
             MessageBus messageBus,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.messageBus = messageBus;
         this.passwordEncoder = passwordEncoder;
@@ -71,7 +71,7 @@ public class UserDomainService {
      */
     public void validateActive(SysUser user) {
         if (user.status() != UserStatus.ACTIVE) {
-            throw new BizException(UserErrorCode.USER_NOT_EXIST_OR_DISABLED);
+            throw new BizException(BizErrorCode.USER_NOT_EXIST_OR_DISABLED);
         }
     }
 
@@ -84,7 +84,7 @@ public class UserDomainService {
      */
     public void validateCanChangePassword(SysUser user) {
         if (user.status() == UserStatus.LOCKED) {
-            throw new BizException(UserErrorCode.PWD_CHANGE_UNSUPPORTED);
+            throw new BizException(BizErrorCode.PWD_CHANGE_UNSUPPORTED);
         }
     }
 
@@ -93,13 +93,13 @@ public class UserDomainService {
      * <p>
      * 支持属性未加载时的安全检查。
      *
-     * @param user 用户实体
+     * @param user     用户实体
      * @param roleCode 角色编码
      * @return 是否拥有角色
      */
     public boolean hasRole(SysUser user, String roleCode) {
         // Jimmer 技巧：判断属性是否已加载
-        if(ImmutableObjects.isLoaded(user, SysUserProps.ROLES)) {
+        if (ImmutableObjects.isLoaded(user, SysUserProps.ROLES)) {
             return user.roles().stream()
                     .anyMatch(r -> Objects.equals(r.code(), roleCode));
         }
@@ -143,15 +143,13 @@ public class UserDomainService {
                 savedUser.username(),
                 savedUser.nickname(),
                 savedUser.org().id(),
-                Instant.now()
-        );
+                Instant.now());
 
         messageBus.publish(SysMessage.<UserCreatedEvent>builder()
                 .topic(SysUserTopics.USER_CREATED)
                 .scope(MsgScope.GLOBAL) // 既通知本地缓存，也通知下游服务
                 .payload(event)
-                .build()
-        );
+                .build());
 
         return savedUser;
     }
@@ -161,22 +159,22 @@ public class UserDomainService {
      * <p>
      * 包含状态校验、持久化和事件发布。
      *
-     * @param username 用户名
+     * @param username  用户名
      * @param newStatus 新状态
-     * @param reason 变更原因
+     * @param reason    变更原因
      */
     @Transactional
     public void changeStatus(String username, UserStatus newStatus, String reason) {
         // 1. 获取聚合根
         SysUser user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+                .orElseThrow(() -> new BizException(BizErrorCode.USER_NOT_EXIST));
 
         // 2. 状态校验 (利用 Entity 自身的充血方法或直接比较)
         if (user.status() == newStatus) {
             return; // 幂等处理
         }
         if (user.isSuperAdmin() && newStatus == UserStatus.LOCKED) {
-            throw new BizException(CommonErrorCode.OPERATION_NOT_ALLOWED);
+            throw new BizException(BizErrorCode.OPERATION_NOT_ALLOWED);
         }
 
         // 3. 变更状态 (Jimmer Draft Update)
@@ -191,9 +189,8 @@ public class UserDomainService {
                 user.tenantId(),
                 user.username(),
                 user.status(), // old status
-                newStatus,     // new status
-                reason
-        );
+                newStatus, // new status
+                reason);
 
         messageBus.publish(SysMessage.<UserStatusChangedEvent>builder()
                 .topic(SysUserTopics.USER_STATUS_CHANGED)
@@ -208,7 +205,7 @@ public class UserDomainService {
      * <p>
      * 包含业务校验、加密、持久化和事件发布。
      *
-     * @param username 用户名
+     * @param username    用户名
      * @param newPassword 新密码
      */
     @Transactional
@@ -219,7 +216,7 @@ public class UserDomainService {
         // 调用实体内部的校验逻辑
         validateCanChangePassword(user);
 
-        userRepository.save(Immutables.createSysUser( draft -> {
+        userRepository.save(Immutables.createSysUser(draft -> {
             draft.setId(user.id());
             draft.setPassword(passwordEncoder.encode(newPassword));
         }));

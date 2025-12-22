@@ -13,5 +13,8 @@ public class BizException extends BaseException {
     public BizException(ErrorCode errorCode, String detailMessage) {
         super(errorCode, detailMessage);
     }
-}
 
+    public BizException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+}

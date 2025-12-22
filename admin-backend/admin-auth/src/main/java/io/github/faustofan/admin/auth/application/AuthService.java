@@ -8,7 +8,7 @@ import io.github.faustofan.admin.auth.domain.model.LoginUser;
 import io.github.faustofan.admin.auth.domain.service.UserDetailsServiceImpl;
 import io.github.faustofan.admin.auth.infrastructure.JwtTokenProvider;
 import io.github.faustofan.admin.shared.common.exception.BizException;
-import io.github.faustofan.admin.shared.common.exception.UserErrorCode;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
 
 /**
  * 认证服务
@@ -74,6 +74,11 @@ public class AuthService {
 
         // 生成新 Token
         return generateTokens(loginUser);
+    }
+
+    public void logout() {
+        // 目前采用无状态 JWT 认证，登出操作无需处理服务端状态
+        // 如需实现 Token 黑名单，可在此处添加逻辑
     }
 
     /**

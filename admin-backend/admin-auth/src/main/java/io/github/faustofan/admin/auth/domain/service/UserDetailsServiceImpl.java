@@ -1,12 +1,8 @@
 package io.github.faustofan.admin.auth.domain.service;
 
-import io.github.faustofan.admin.auth.domain.model.LoginUser;
-import io.github.faustofan.admin.shared.cache.CacheKeys;
-import io.github.faustofan.admin.shared.common.exception.BizException;
-import io.github.faustofan.admin.shared.common.exception.UserErrorCode;
-import io.github.faustofan.admin.system.domain.enums.UserStatus;
-import io.github.faustofan.admin.system.dto.SysUserLoginView;
-import io.github.faustofan.admin.system.infrastructure.reponsitory.SysUserRepository;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheConfig;
@@ -15,8 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import java.util.stream.Collectors;
-import java.util.Objects;
+
+import io.github.faustofan.admin.auth.domain.model.LoginUser;
+import io.github.faustofan.admin.shared.cache.constants.CacheKeys;
+import io.github.faustofan.admin.shared.common.exception.BizException;
+import io.github.faustofan.admin.shared.common.exception.errcode.BizErrorCode;
+import io.github.faustofan.admin.system.domain.enums.UserStatus;
+import io.github.faustofan.admin.system.dto.SysUserLoginView;
+import io.github.faustofan.admin.system.infrastructure.reponsitory.SysUserRepository;
 
 /**
  * 用户详情服务
@@ -52,7 +54,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public LoginUser loadUserByUsernameAndTenant(String username, Long tenantId) {
         LoginUser user = loadUserFromDatabase(username, tenantId);
         if (user == null) {
-            throw new BizException(UserErrorCode.USER_NOT_EXIST_OR_DISABLED);
+            throw new BizException(BizErrorCode.USER_NOT_EXIST_OR_DISABLED);
         }
         return user;
     }
@@ -67,11 +69,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public LoginUser loadUserById(Long userId) {
         var userEntity = userRepository.findByIdWithRoles(userId);
         if (userEntity == null) {
-            throw new BizException(UserErrorCode.USER_NOT_EXIST);
+            throw new BizException(BizErrorCode.USER_NOT_EXIST);
         }
         LoginUser user = loadUserFromDatabase(userEntity.getUsername(), userEntity.getTenantId());
         if (user == null) {
-            throw new BizException(UserErrorCode.USER_NOT_EXIST);
+            throw new BizException(BizErrorCode.USER_NOT_EXIST);
         }
         return user;
     }
@@ -85,7 +87,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             return null;
         }
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new BizException(UserErrorCode.USER_DISABLED);
+            throw new BizException(BizErrorCode.USER_DISABLED);
         }
 
         var roles = user.getRoles();

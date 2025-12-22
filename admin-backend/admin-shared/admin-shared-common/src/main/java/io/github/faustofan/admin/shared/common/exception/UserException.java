@@ -12,5 +12,9 @@ public class UserException extends BaseException {
     public UserException(ErrorCode errorCode, String detailMessage) {
         super(errorCode, detailMessage);
     }
+
+    public UserException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
 }
 

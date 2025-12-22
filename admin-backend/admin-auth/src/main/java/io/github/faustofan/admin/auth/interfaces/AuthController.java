@@ -15,7 +15,7 @@ import io.github.faustofan.admin.auth.application.dto.LoginRequest;
 import io.github.faustofan.admin.auth.application.dto.LoginResponse;
 import io.github.faustofan.admin.auth.application.dto.RefreshTokenRequest;
 import io.github.faustofan.admin.auth.domain.model.LoginUser;
-import io.github.faustofan.admin.shared.common.constant.CustomConstants;
+import io.github.faustofan.admin.shared.common.constant.SystemConstants;
 import io.github.faustofan.admin.shared.common.dto.ApiResponse;
 import io.github.faustofan.admin.shared.web.config.OpenApiConfig;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,7 +55,7 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "登录请求参数", required = true) @RequestBody LoginRequest request) {
-        Long tenantId = request.tenantId() != null ? request.tenantId() : CustomConstants.SYSTEM_TENANT_ID;
+        Long tenantId = request.tenantId() != null ? request.tenantId() : SystemConstants.SYSTEM_TENANT_ID;
         LoginResponse response = authService.login(request.username(), request.password(), tenantId);
         return ApiResponse.success(response);
     }
@@ -127,7 +127,7 @@ public class AuthController {
     })
     @PostMapping("/logout")
     public ApiResponse<String> logout() {
-        // TODO: 实现 Token 黑名单机制（需要 Redis）
+        authService.logout();
         return ApiResponse.success("登出成功");
     }
 }

@@ -1,18 +1,20 @@
 package io.github.faustofan.admin.system.application.command;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.google.common.base.Joiner;
-import io.github.faustofan.admin.shared.common.exception.BizErrorCode;
+
 import io.github.faustofan.admin.shared.common.exception.BizException;
+import io.github.faustofan.admin.shared.common.exception.errcode.BizErrorCode;
 import io.github.faustofan.admin.system.domain.model.SysUser;
 import io.github.faustofan.admin.system.domain.service.OrgDomainService;
 import io.github.faustofan.admin.system.domain.service.RoleDomainService;
 import io.github.faustofan.admin.system.domain.service.TenantDomainService;
 import io.github.faustofan.admin.system.domain.service.UserDomainService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import io.github.faustofan.admin.system.dto.SysUserCreateCommand;
-
-import java.util.List;
 
 /**
  * 用户命令服务
@@ -37,9 +39,9 @@ public class UserCommandService {
      * @param userDomainService 用户领域服务
      */
     public UserCommandService(
-            UserDomainService userDomainService, TenantDomainService tenantDomainService, OrgDomainService orgDomainService,
-            RoleDomainService roleDomainService
-    ) {
+            UserDomainService userDomainService, TenantDomainService tenantDomainService,
+            OrgDomainService orgDomainService,
+            RoleDomainService roleDomainService) {
         this.userDomainService = userDomainService;
         this.tenantDomainService = tenantDomainService;
         this.orgDomainService = orgDomainService;
@@ -59,18 +61,17 @@ public class UserCommandService {
     @Transactional
     public Long create(SysUserCreateCommand cmd) {
         // 校验租户、组织和角色是否存在
-        if(!tenantDomainService.existsById(cmd.getTenantId()))
+        if (!tenantDomainService.existsById(cmd.getTenantId()))
             throw new BizException(BizErrorCode.BIND_TENANT_NOT_EXIST);
-        if(!orgDomainService.existsById(cmd.getOrgId()))
+        if (!orgDomainService.existsById(cmd.getOrgId()))
             throw new BizException(BizErrorCode.BIND_ORG_NOT_EXIST);
         // 获取不存在的角色ID列表
         List<Long> notExistRoleIds = roleDomainService.existsById(cmd.getRoleIds());
         // 如果有不存在的角色ID，则抛出异常
-        if(!notExistRoleIds.isEmpty())
+        if (!notExistRoleIds.isEmpty())
             throw new BizException(
                     BizErrorCode.BIND_ROLE_NOT_EXIST,
-                    "以下角色ID不存在：" + Joiner.on(",").join(notExistRoleIds)
-            );
+                    "以下角色ID不存在：" + Joiner.on(",").join(notExistRoleIds));
 
         SysUser savedUser = userDomainService.createUser(cmd.toEntity());
         return savedUser.id();

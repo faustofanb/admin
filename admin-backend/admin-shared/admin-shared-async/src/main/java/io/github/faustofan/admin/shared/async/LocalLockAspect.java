@@ -1,7 +1,9 @@
 package io.github.faustofan.admin.shared.async;
 
-import io.github.faustofan.admin.shared.common.exception.CommonErrorCode;
-import io.github.faustofan.admin.shared.common.exception.SystemException;
+import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,9 +15,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import io.github.faustofan.admin.shared.common.exception.SystemException;
+import io.github.faustofan.admin.shared.common.exception.errcode.SystemErrorCode;
 
 /**
  * 本地锁切面
@@ -32,7 +33,6 @@ public class LocalLockAspect {
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
-
     @Around("@annotation(localLock)")
     public Object around(ProceedingJoinPoint point, LocalLock localLock) throws Throwable {
         String key = parseKey(localLock.key(), point);
@@ -48,7 +48,7 @@ public class LocalLockAspect {
                 return point.proceed();
             } else {
                 log.warn("Failed to acquire local lock for key: {}", key);
-                throw new SystemException(CommonErrorCode.TIMEOUT);
+                throw new SystemException(SystemErrorCode.TIMEOUT);
             }
         } finally {
             if (acquired) {
