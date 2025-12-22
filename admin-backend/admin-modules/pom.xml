@@ -18,9 +18,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <modules>
+    <!-- <modules>
         <module>admin-batch</module>
         <module>admin-resources</module>
         <module>admin-schedule</module>
-    </modules>
+    </modules> -->
 </project>

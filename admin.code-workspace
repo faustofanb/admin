@@ -1,19 +1,19 @@
 {
 	"folders": [
-        {
-            "name": "全部",
-            "path": "."
-        },
-        {
-            "name": "开发容器",
-            "path": ".devcontainer"
-        },
 		{
-            "name": "后端服务",
+			"name": "全部",
+			"path": "."
+		},
+		{
+			"name": "开发容器",
+			"path": ".devcontainer"
+		},
+		{
+			"name": "后端服务",
 			"path": "admin-backend"
 		},
 		{
-            "name": "前端服务",
+			"name": "前端服务",
 			"path": "admin-fronted/vue-vben-admin/apps/web-antd"
 		}
 	],
@@ -24,12 +24,12 @@
 		"files.autoSave": "onFocusChange",
 		"dbcode.connections": [
 			{
-				"connectionId": "OOBnsY4Rd1r25VIqUlg19",
-				"name": "DEV_POSTGREL",
+				"connectionId": "8D7jw4z0rT9sF4RV-ys_N",
+				"name": "DEV_CONTAINER",
 				"driver": "postgres",
-				"color": "#00E3A9",
+				"color": "#33B8FF",
 				"connectionType": "host",
-				"host": "localhost",
+				"host": "postgresql",
 				"port": 5432,
 				"ssl": false,
 				"authMethod": "password",
@@ -41,7 +41,24 @@
 				"role": "development",
 				"postConnectionSqlType": "inline",
 				"connectionTimeout": 30
+			},
+			{
+				"connectionId": "yHYIl-Pvf5IiVosQ9JNmF",
+				"name": "REDIS_CONAINTER",
+				"driver": "redis",
+				"color": "#FFB095",
+				"connectionType": "host",
+				"host": "redis",
+				"port": 6379,
+				"ssl": false,
+				"username": "default",
+				"savePassword": "secretStorage",
+				"database": "0",
+				"readOnly": false,
+				"role": "development",
+				"connectionTimeout": 30
 			}
-		]
+		],
+		"maven.view": "hierarchical"
 	}
 }

@@ -36,11 +36,11 @@
     </properties>
 
     <modules>
-        <module>admin-gateway</module>
+        <!-- <module>admin-gateway</module> -->
         <module>admin-system</module>
         <module>admin-shared</module>
         <module>admin-boot</module>
-        <module>admin-modules</module>
+        <!-- <module>admin-modules</module> -->
         <module>admin-auth</module>
     </modules>
 

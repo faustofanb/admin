@@ -1,10 +1,9 @@
 package io.github.faustofan.admin.shared.web.handler;
 
-import io.github.faustofan.admin.shared.common.dto.ApiResponse;
-import io.github.faustofan.admin.shared.common.exception.BizException;
-import io.github.faustofan.admin.shared.common.exception.CommonErrorCode;
-import io.github.faustofan.admin.shared.common.exception.SystemException;
-import io.github.faustofan.admin.shared.common.exception.UserException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,9 +12,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import io.github.faustofan.admin.shared.common.dto.ApiResponse;
+import io.github.faustofan.admin.shared.common.exception.BizException;
+import io.github.faustofan.admin.shared.common.exception.CommonErrorCode;
+import io.github.faustofan.admin.shared.common.exception.SystemException;
+import io.github.faustofan.admin.shared.common.exception.UserException;
 
 /**
  * 全局异常处理器
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /** 日志记录器 */
-    private static final  Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * 处理请求体不可读异常（通常是 JSON 解析错误）
@@ -40,19 +41,41 @@ public class GlobalExceptionHandler {
         String message = e.getMessage();
 
         // 1. 针对 Jimmer/Jackson 的 "property 'xxx' must be specified" 错误进行正则提取
-        // 原始错误示例: ... the property "tenantId" must be specified it is non-null property
         if (message != null && message.contains("must be specified")) {
-            // 使用正则提取字段名
             Pattern pattern = Pattern.compile("the property \"(.*?)\" must be specified");
             Matcher matcher = pattern.matcher(message);
             if (matcher.find()) {
                 String fieldName = matcher.group(1);
                 return ApiResponse.fail(CommonErrorCode.PARAM_MISSING, "请求参数缺失必填字段: " + fieldName);
             }
-            return ApiResponse.fail(CommonErrorCode.PARAM_MISSING,"请求参数缺失必填字段");
+            return ApiResponse.fail(CommonErrorCode.PARAM_MISSING, "请求参数缺失必填字段");
         }
 
-        // 2. 其他类型的 JSON 错误 (例如 JSON 语法错误，少个逗号/括号等)
+        // 2. 针对类型转换错误（如 Long 字段传了字符串）
+        if (message != null && message.contains("Cannot deserialize value of type")) {
+            // 例子: Cannot deserialize value of type `java.lang.Long` from String
+            // "faustofan": not a valid `java.lang.Long` value
+            Pattern pattern = Pattern.compile("Cannot deserialize value of type `(.+?)` from (.+?) \"(.*?)\":");
+            Matcher matcher = pattern.matcher(message);
+            if (matcher.find()) {
+                String type = matcher.group(1);
+                String _ = matcher.group(2);
+                String actualValue = matcher.group(3);
+                // 尝试提取字段名
+                Pattern fieldPattern = Pattern.compile(
+                        "at \\[Source.*?; line: \\d+, column: \\d+\\] \\(through reference chain: .+?\\[\"(\\w+)\"\\]");
+                Matcher fieldMatcher = fieldPattern.matcher(message);
+                String field = fieldMatcher.find() ? fieldMatcher.group(1) : null;
+                String msg = "请求参数";
+                if (field != null) {
+                    msg += "【" + field + "】";
+                }
+                msg += "类型错误，期望类型为 " + type.substring(type.lastIndexOf('.') + 1) + "，实际传值为 '" + actualValue + "'";
+                return ApiResponse.fail(CommonErrorCode.PARAM_INVALID, msg);
+            }
+        }
+
+        // 3. 其他类型的 JSON 错误
         return ApiResponse.fail(CommonErrorCode.PARAM_INVALID, "请求体 JSON 格式错误，无法解析");
     }
 

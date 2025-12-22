@@ -15,17 +15,9 @@ const authStore = useAuthStore();
 
 const MOCK_USER_OPTIONS: BasicOption[] = [
   {
-    label: 'Super',
-    value: 'vben',
-  },
-  {
-    label: 'Admin',
-    value: 'admin',
-  },
-  {
-    label: 'User',
-    value: 'jack',
-  },
+    label: '开发者租户',
+    value: '999999999',
+  }
 ];
 
 const formSchema = computed((): VbenFormSchema[] => {
@@ -34,13 +26,13 @@ const formSchema = computed((): VbenFormSchema[] => {
       component: 'VbenSelect',
       componentProps: {
         options: MOCK_USER_OPTIONS,
-        placeholder: $t('authentication.selectAccount'),
+        placeholder: $t('authentication.selectTenant'),
       },
-      fieldName: 'selectAccount',
-      label: $t('authentication.selectAccount'),
+      fieldName: 'tenantId',
+      label: $t('authentication.selectTenant'),
       rules: z
         .string()
-        .min(1, { message: $t('authentication.selectAccount') })
+        .min(1, { message: $t('authentication.selectTenant') })
         .optional()
         .default('vben'),
     },
@@ -90,9 +82,5 @@ const formSchema = computed((): VbenFormSchema[] => {
 </script>
 
 <template>
-  <AuthenticationLogin
-    :form-schema="formSchema"
-    :loading="authStore.loginLoading"
-    @submit="authStore.authLogin"
-  />
+  <AuthenticationLogin :form-schema="formSchema" :loading="authStore.loginLoading" @submit="authStore.authLogin" />
 </template>
