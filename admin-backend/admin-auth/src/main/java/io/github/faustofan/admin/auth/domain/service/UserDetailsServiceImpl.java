@@ -14,11 +14,17 @@ import org.springframework.stereotype.Service;
 
 import io.github.faustofan.admin.auth.domain.model.LoginUser;
 import io.github.faustofan.admin.shared.cache.constants.CacheKeys;
+import io.github.faustofan.admin.shared.common.context.AppContextHolder;
 import io.github.faustofan.admin.shared.common.exception.BizException;
+import io.github.faustofan.admin.shared.common.exception.UserException;
 import io.github.faustofan.admin.shared.common.exception.errcode.BizErrorCode;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
+import io.github.faustofan.admin.shared.distributed.constants.RedisKeyRegistry;
+import io.github.faustofan.admin.shared.distributed.core.RedisUtil;
 import io.github.faustofan.admin.system.domain.enums.UserStatus;
 import io.github.faustofan.admin.system.dto.SysUserLoginView;
 import io.github.faustofan.admin.system.infrastructure.reponsitory.SysUserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 用户详情服务
@@ -32,8 +38,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final SysUserRepository userRepository;
 
-    public UserDetailsServiceImpl(SysUserRepository userRepository) {
+    private final RedisUtil redisUtil;
+
+    public UserDetailsServiceImpl(SysUserRepository userRepository, RedisUtil redisUtil) {
         this.userRepository = userRepository;
+        this.redisUtil = redisUtil;
     }
 
     /**
@@ -76,6 +85,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new BizException(BizErrorCode.USER_NOT_EXIST);
         }
         return user;
+    }
+
+    /**
+     * 检查 Token 是否已登出
+     * @param token JWT Token
+     * @return      true 如果已登出，false 否则 
+     */
+    public boolean isLogOut(String token) {
+        return redisUtil.isMemberOfSet(RedisKeyRegistry.SEC_BLACKLIST, "TOKENS", token);
     }
 
     /**

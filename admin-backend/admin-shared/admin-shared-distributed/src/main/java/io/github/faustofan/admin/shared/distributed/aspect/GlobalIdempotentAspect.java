@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import io.github.faustofan.admin.shared.common.exception.UserException;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
 import io.github.faustofan.admin.shared.distributed.annotation.GlobalIdempotent;
 import io.github.faustofan.admin.shared.distributed.constants.RedisKeyRegistry;
 import io.github.faustofan.admin.shared.distributed.core.IdempotencyRecord;
@@ -45,7 +47,7 @@ public class GlobalIdempotentAspect {
                     log.info("幂等命中: 直接返回缓存结果 Key=[{}]", uniqueKey);
                     yield record.result();
                 }
-                case PENDING -> throw new DistributedGovernanceException(idempotent.message());
+                case PENDING -> throw new UserException(UserErrorCode.IDEMPOTENT_PENDING, idempotent.message());
                 case FAIL -> {
                     log.info("上一次执行失败，允许重试 Key=[{}]", uniqueKey);
                     yield executeAndSave(joinPoint, uniqueKey);
@@ -58,12 +60,19 @@ public class GlobalIdempotentAspect {
         boolean locked = redisOps.setIfAbsent(RedisKeyRegistry.GOV_IDEMPOTENCY, uniqueKey, IdempotencyRecord.pending());
         if (!locked) {
             // 如果设置失败，说明刚才一瞬间有其他线程插队了，抛出异常让用户稍后重试
-            throw new DistributedGovernanceException(idempotent.message());
+            throw new UserException(UserErrorCode.IDEMPOTENT_FAIL, idempotent.message());
         }
 
         return executeAndSave(joinPoint, uniqueKey);
     }
-
+    
+    /**
+     * 执行目标方法并保存结果
+     * @param joinPoint     切点
+     * @param key           唯一键
+     * @return              方法执行结果    
+     * @throws Throwable    方法执行异常  
+     */
     private Object executeAndSave(ProceedingJoinPoint joinPoint, String key) throws Throwable {
         try {
             Object result = joinPoint.proceed();

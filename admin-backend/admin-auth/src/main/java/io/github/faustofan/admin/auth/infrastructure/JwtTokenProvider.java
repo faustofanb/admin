@@ -4,7 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Set;
@@ -22,6 +26,11 @@ public class JwtTokenProvider {
     private final SecurityProperties securityProperties;
     /** JWT 签名密钥 */
     private final SecretKey secretKey;
+
+    /** 请求头中存放 JWT 的字段名 */
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    /** JWT Token 前缀 */
+    private static final String BEARER_PREFIX = "Bearer ";
 
     /**
      * 构造方法，初始化密钥
@@ -183,5 +192,19 @@ public class JwtTokenProvider {
      */
     public long getRefreshTokenExpiration() {
         return securityProperties.getRefreshTokenExpiration();
+    }
+
+    /**
+     * 从请求头中提取 JWT Token
+     *
+     * @param request HTTP 请求
+     * @return JWT Token 字符串，若不存在则返回 null
+     */
+    public String extractJwtFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(BEARER_PREFIX.length());
+        }
+        return null;
     }
 }

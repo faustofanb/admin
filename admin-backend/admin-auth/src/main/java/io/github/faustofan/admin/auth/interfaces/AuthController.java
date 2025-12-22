@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Tag(name = "01. 认证管理", description = "用户认证相关接口：登录、登出、Token 刷新、获取当前用户信息")
 @RestController
@@ -126,8 +127,8 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "未登录")
     })
     @PostMapping("/logout")
-    public ApiResponse<String> logout() {
-        authService.logout();
+    public ApiResponse<String> logout(HttpServletRequest request) {
+        authService.logout(request);
         return ApiResponse.success("登出成功");
     }
 }

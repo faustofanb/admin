@@ -16,6 +16,8 @@ import io.github.faustofan.admin.auth.domain.service.UserDetailsServiceImpl;
 import io.github.faustofan.admin.shared.common.constant.SystemConstants;
 import io.github.faustofan.admin.shared.common.context.AppContext;
 import io.github.faustofan.admin.shared.common.context.AppContextHolder;
+import io.github.faustofan.admin.shared.common.exception.UserException;
+import io.github.faustofan.admin.shared.common.exception.errcode.UserErrorCode;
 import io.github.faustofan.admin.shared.common.util.SnowflakeIdGenerator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,11 +35,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
-    /** 请求头中存放 JWT 的字段名 */
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    /** JWT Token 前缀 */
-    private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsServiceImpl userDetailsService;
@@ -66,11 +63,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+            FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
-            String jwt = extractJwtFromRequest(request);
-
+            String jwt = jwtTokenProvider.extractJwtFromRequest(request);
+            
             if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
+                // 检查 Token 是否在登出黑名单中
+                if (userDetailsService.isLogOut(jwt)) {
+                    throw new UserException(UserErrorCode.UNAUTHORIZED);
+                }
+
                 String tokenType = jwtTokenProvider.getTokenType(jwt);
 
                 // 只接受 access token
@@ -101,6 +104,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             .build();
                     AppContextHolder.setContext(appContext);
                 }
+            } else if(jwt == null){
+                //第一次登录，没有携带token，设置系统级上下文
+                AppContextHolder.setContext(SystemConstants.SYSTEM_APP_CONTEXT);
             }
         } catch (Exception e) {
             logger.error("Could not set user authentication in security context", e);
@@ -108,7 +114,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // 设置系统级上下文，继续后续过滤器链
-            AppContextHolder.setContext(SystemConstants.SYSTEM_APP_CONTEXT);
             filterChain.doFilter(request, response);
         } finally {
             // 请求结束时清理上下文，防止内存泄漏
@@ -116,17 +121,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    /**
-     * 从请求头中提取 JWT Token
-     *
-     * @param request HTTP 请求
-     * @return JWT Token 字符串，若不存在则返回 null
-     */
-    private String extractJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(BEARER_PREFIX.length());
-        }
-        return null;
-    }
+
 }
