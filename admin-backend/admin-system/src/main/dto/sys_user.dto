@@ -6,14 +6,24 @@ import jakarta.validation.constraints.Pattern
  * [Query] 用户搜索参数
  */
 specification SysUserSearchQuery {
+    id
+
+    tenantId
+
     like/i(username)
     like/i(nickname)
+
+    like/i(email)
+    like/i(mobile)
 
     // 筛选状态
     status
 
     // 筛选部门
     associatedIdEq(org) as orgId
+
+    associatedIdEq(roles) as roleId
+
 }
 
 /**

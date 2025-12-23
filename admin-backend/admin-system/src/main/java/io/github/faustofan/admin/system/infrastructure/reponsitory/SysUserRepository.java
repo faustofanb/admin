@@ -7,6 +7,9 @@ import io.github.faustofan.admin.system.domain.model.Tables;
 import io.github.faustofan.admin.system.domain.enums.UserStatus;
 import org.babyfish.jimmer.Page;
 import org.babyfish.jimmer.spring.repository.JRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.jaxb.SpringDataJaxb;
 import org.springframework.stereotype.Repository;
 import io.github.faustofan.admin.system.dto.SysUserLoginView;
 import io.github.faustofan.admin.system.dto.SysUserView;
@@ -53,11 +56,12 @@ public interface SysUserRepository extends JRepository<SysUser, Long> {
     /**
      * 分页查询用户列表
      */
-    default Page<SysUserView> findPage(SysUserSearchQuery query, PageRequestDto page) {
+    default Page<SysUserView> findPage(SysUserSearchQuery query, Pageable page) {
         return sql().createQuery(table)
                 .where(query)
                 .select(table.fetch(SysUserView.class))
-                .fetchPage(page.page(), page.size());
+                .fetchPage(page.getPageNumber(), page.getPageSize())
+                ;
     }
 
     /**

@@ -90,13 +90,15 @@ public class AuthController {
     })
     @GetMapping("/me")
     public ApiResponse<CurrentUserResponse> getCurrentUser(
-            @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser) {
+            @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser
+    ) {
         CurrentUserResponse response = new CurrentUserResponse(
                 loginUser.getUserId(),
                 loginUser.getUsername(),
                 loginUser.getNickname(),
                 loginUser.getTenantId(),
                 loginUser.getOrgId(),
+                loginUser.getOrgName(),
                 loginUser.getRoles(),
                 loginUser.getPermissions(),
                 loginUser.isSuperAdmin());
@@ -109,6 +111,10 @@ public class AuthController {
      * @param loginUser
      * @return 当前用户权限码列表
      */
+    @Operation(
+            operationId = "获取登录用户权限码列表",
+            security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
+    )
     @GetMapping("/codes")
     public ApiResponse<Set<String>> getPermCodes(@AuthenticationPrincipal LoginUser loginUser) {
         return ApiResponse.success(loginUser.getPermissions());

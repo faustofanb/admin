@@ -13,10 +13,10 @@ import java.util.List;
  * @param <T>           type of items in the list
  */
 public record PageResponse<T>(
-            Integer totalElements,
-            Integer totalPages,
-            Integer currentPage,
-            Integer pageSize,
+            long totalElements,
+            long totalPages,
+            long currentPage,
+            long pageSize,
             List<T> items
 ) {
 }

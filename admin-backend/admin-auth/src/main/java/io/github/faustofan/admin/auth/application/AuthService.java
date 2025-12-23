@@ -1,6 +1,8 @@
 package io.github.faustofan.admin.auth.application;
 
 import org.apache.pulsar.shade.org.checkerframework.checker.units.qual.t;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Service
 public class AuthService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -91,13 +95,13 @@ public class AuthService {
      * 用户登出
      */
     public void logout(HttpServletRequest request) {
+        logger.info("用户登出");
         String token = jwtTokenProvider.extractJwtFromRequest(request);
 
         if(!jwtTokenProvider.validateToken(token))
             throw new UserException(UserErrorCode.INVALID_ACCESS_TOKEN);
 
         redisUtil.addToSet(RedisKeyRegistry.SEC_BLACKLIST, "TOKENS", token);
-        AppContextHolder.clearContext();
     }
 
     /**

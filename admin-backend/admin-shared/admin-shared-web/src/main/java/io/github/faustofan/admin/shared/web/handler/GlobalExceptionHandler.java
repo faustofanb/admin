@@ -1,13 +1,17 @@
 package io.github.faustofan.admin.shared.web.handler;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,60 +42,84 @@ public class GlobalExceptionHandler {
      * @return 包含具体错误信息的失败响应
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ApiResponse<?> handleParamMissingException(HttpMessageNotReadableException e) {
-        String message = e.getMessage();
+    public ApiResponse<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        Throwable cause = e.getCause();
 
-        // 1. 针对 Jimmer/Jackson 的 "property 'xxx' must be specified" 错误进行正则提取
-        if (message != null && message.contains("must be specified")) {
-            Pattern pattern = Pattern.compile("the property \"(.*?)\" must be specified");
-            Matcher matcher = pattern.matcher(message);
-            if (matcher.find()) {
-                String fieldName = matcher.group(1);
-                return ApiResponse.fail(UserErrorCode.PARAM_MISSING, "请求参数缺失必填字段: " + fieldName);
+        // 1. 处理 Jackson 映射异常 (字段类型不匹配、JSON 结构错误)
+        if (cause instanceof JsonMappingException mappingException) {
+            // 获取产生错误的字段路径 (例如: "query.userId" 或 "users[0].age")
+            String fieldName = mappingException.getPath().stream()
+                    .map(JsonMappingException.Reference::getFieldName)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.joining("."));
+
+            // 情况 A: 类型转换错误 (例如 String 传给了 Long)
+            if (cause instanceof InvalidFormatException formatException) {
+                String targetType = formatException.getTargetType().getSimpleName();
+                Object actualValue = formatException.getValue();
+                String msg = String.format("参数【%s】类型错误：期望类型为 %s，实际输入为 '%s'",
+                        fieldName, targetType, actualValue);
+                return ApiResponse.fail(UserErrorCode.PARAM_INVALID, msg);
             }
+
+            // 情况 B: 必填字段缺失 (针对 Jimmer 或 Jackson 的注解)
+            // Jimmer 的 "must be specified" 往往封装在 MismatchedInputException 中
+            if (cause instanceof MismatchedInputException mismatchedException) {
+                String originalMessage = mismatchedException.getOriginalMessage();
+                if (originalMessage != null && originalMessage.contains("must be specified")) {
+                    return ApiResponse.fail(UserErrorCode.PARAM_MISSING,
+                            "缺失必填字段: " + (fieldName.isEmpty() ? "未知字段" : fieldName));
+                }
+            }
+
+            // 其他映射错误
+            if (!fieldName.isEmpty()) {
+                return ApiResponse.fail(UserErrorCode.PARAM_INVALID, "参数【" + fieldName + "】格式错误");
+            }
+        }
+
+        // 2. 特殊处理：如果还是没拿到信息，但包含 Jimmer 常见的缺失提示 (兜底)
+        String rawMsg = e.getMessage();
+        if (rawMsg != null && rawMsg.contains("must be specified")) {
+            // 如果无法通过 Jackson 路径获取，再尝试简单的正则提取字段名
             return ApiResponse.fail(UserErrorCode.PARAM_MISSING, "请求参数缺失必填字段");
         }
 
-        // 2. 针对类型转换错误（如 Long 字段传了字符串）
-        if (message != null && message.contains("Cannot deserialize value of type")) {
-            // 例子: Cannot deserialize value of type `java.lang.Long` from String
-            // "faustofan": not a valid `java.lang.Long` value
-            Pattern pattern = Pattern.compile("Cannot deserialize value of type `(.+?)` from (.+?) \"(.*?)\":");
-            Matcher matcher = pattern.matcher(message);
-            if (matcher.find()) {
-                String type = matcher.group(1);
-                String _ = matcher.group(2);
-                String actualValue = matcher.group(3);
-                // 尝试提取字段名
-                Pattern fieldPattern = Pattern.compile(
-                        "at \\[Source.*?; line: \\d+, column: \\d+\\] \\(through reference chain: .+?\\[\"(\\w+)\"\\]");
-                Matcher fieldMatcher = fieldPattern.matcher(message);
-                String field = fieldMatcher.find() ? fieldMatcher.group(1) : null;
-                String msg = "请求参数";
-                if (field != null) {
-                    msg += "【" + field + "】";
-                }
-                msg += "类型错误，期望类型为 " + type.substring(type.lastIndexOf('.') + 1) + "，实际传值为 '" + actualValue + "'";
-                return ApiResponse.fail(UserErrorCode.PARAM_INVALID, msg);
-            }
-        }
-
-        // 3. 其他类型的 JSON 错误
+        // 3. 最后的兜底：JSON 语法错误（如少了个逗号、括号不匹配）
+        logger.error("JSON 解析异常: ", e);
         return ApiResponse.fail(UserErrorCode.PARAM_INVALID, "请求体 JSON 格式错误，无法解析");
     }
 
     /**
-     * 处理参数校验异常
-     *
-     * @param e 参数校验异常
-     * @return 包含所有校验错误信息的失败响应
+     * 统一处理参数校验异常
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ApiResponse<?> handleValidationException(MethodArgumentNotValidException e) {
-        String errorMessage = e.getBindingResult().getAllErrors().stream()
-                .map(ObjectError::getDefaultMessage) // 提取 message="xxxx"
-                .collect(Collectors.joining("; "));
-        return ApiResponse.fail(UserErrorCode.PARAM_INVALID, errorMessage);
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+            BindException.class,
+            ConstraintViolationException.class
+    })
+    public ApiResponse<?> handleBindingException(Exception e) {
+        String message = "参数校验失败";
+
+        if (e instanceof MethodArgumentNotValidException ex) {
+            message = ex.getBindingResult().getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .findFirst()
+                    .orElse(ex.getMessage());
+        } else if (e instanceof BindException ex) {
+            message = ex.getBindingResult().getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .findFirst()
+                    .orElse(ex.getMessage());
+        } else if (e instanceof ConstraintViolationException ex) {
+            message = ex.getConstraintViolations().stream()
+                    .map(ConstraintViolation::getMessage)
+                    .findFirst()
+                    .orElse(ex.getMessage());
+        }
+
+        logger.warn("参数校验异常: {}", message);
+        return ApiResponse.fail(UserErrorCode.PARAM_INVALID, message);
     }
 
     /**
@@ -102,7 +130,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BizException.class)
     public ApiResponse<?> handleBizException(BizException ex) {
-        return ApiResponse.fail(ex.getErrorCode(), ex.getMessage());
+        logger.warn(ex.getMessage());
+        return ApiResponse.fail(ex.getErrorCode());
     }
 
     /**
@@ -113,7 +142,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserException.class)
     public ApiResponse<?> handleUserException(UserException ex) {
-        return ApiResponse.fail(ex.getErrorCode(), ex.getMessage());
+        logger.warn(ex.getMessage());
+        return ApiResponse.fail(ex.getErrorCode());
     }
 
     /**
@@ -125,6 +155,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SystemException.class)
     public ApiResponse<?> handleSystemException(SystemException ex) {
         logger.error("System error", ex);
+        ex.printStackTrace();
         return ApiResponse.fail(ex.getErrorCode());
     }
 
@@ -137,6 +168,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ApiResponse<?> handleUnknownException(Exception ex) {
         logger.error("Unknown error", ex);
+        ex.printStackTrace();
         return ApiResponse.fail(SystemErrorCode.SYSTEM_ERROR);
     }
 

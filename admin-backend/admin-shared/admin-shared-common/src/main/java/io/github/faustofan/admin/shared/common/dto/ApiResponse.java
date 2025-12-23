@@ -30,7 +30,7 @@ public record ApiResponse<T>(
      */
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(
-                AppContextHolder.getContext().traceId(),
+                AppContextHolder.getContext() == null ? null : AppContextHolder.getContext().traceId(),
                 "200",
                 "Success",
                 data
@@ -46,7 +46,7 @@ public record ApiResponse<T>(
      */
     public static <T> ApiResponse<T> fail(ErrorCode errorCode) {
         return new ApiResponse<>(
-                AppContextHolder.getContext().traceId(),
+                AppContextHolder.getContext() == null ? null : AppContextHolder.getContext().traceId(),
                 errorCode.getCode(),
                 errorCode.getMessage(),
                 null

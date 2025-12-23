@@ -12,6 +12,7 @@ public enum SystemErrorCode implements ErrorCode {
     TENANT_ID_MISSING("C0401", "租户ID缺失"),
     DISTRIBUTED_ACQUIRE_LOCK_FAIL("C0500", "分布式锁获取失败"),
     INTERRUPT_EXCEPTION("C0501", "系统中断异常"),
+    JWT_PROCESSING_ERROR("C0600", "JWT 处理异常")
     ;
 
     private final String code;

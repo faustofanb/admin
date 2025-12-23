@@ -111,6 +111,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         var roles = user.getRoles();
         boolean isSuperAdmin = user.isSuperAdmin();
 
+        var roleMaps = roles.stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        SysUserLoginView.TargetOf_roles::getId,
+                        SysUserLoginView.TargetOf_roles::getName
+                ));
+
         var permissions = roles.stream()
                 .flatMap(role -> role.getMenus().stream())
                 .map(SysUserLoginView.TargetOf_roles.TargetOf_menus::getPermCode)
@@ -126,10 +132,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 user.getId(),
                 user.getTenantId(),
                 user.getOrg().getId(),
+                user.getOrg().getName(),
                 user.getUsername(),
                 user.getPassword(),
                 user.getNickname(),
-                roles.stream().map(role -> role.getName()).collect(Collectors.toUnmodifiableSet()),
+                roleMaps,
                 permissions,
                 policyContents,
                 isSuperAdmin,

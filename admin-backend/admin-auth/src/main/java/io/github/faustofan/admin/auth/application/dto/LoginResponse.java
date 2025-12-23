@@ -1,6 +1,8 @@
 package io.github.faustofan.admin.auth.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,6 +18,15 @@ public record LoginResponse(
         @Schema(description = "用户ID", example = "1") Long userId,
         @Schema(description = "用户名", example = "admin") String username,
         @Schema(description = "用户昵称", example = "管理员", nullable = true) String nickname,
-        @Schema(description = "用户权限列表", example = "[\"admin\"]") Set<String> roles,
+        @Schema(
+                description = "用户角色列表",
+                example = """
+                    {
+                        1: "管理员",
+                        2: "用户"
+                    }
+                """
+        )
+        Map<Long, String> roles,
         @Schema(description = "首页路径", example = "/workpath") String homePath) {
 }

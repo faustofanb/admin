@@ -19,10 +19,11 @@ public class LoginUser implements UserDetails {
     private final long userId;
     private final Long tenantId;
     private final long orgId;
+    private final String orgName;
     private final String username;
     private final String password;
     private final String nickname;
-    private final Set<String> roles;
+    private final Map<Long, String> roles;
     private final Set<String> permissions;
     private final Set<String> dataPolicy;
     private final boolean isSuperAdmin;
@@ -35,24 +36,27 @@ public class LoginUser implements UserDetails {
             Long userId,
             Long tenantId,
             Long orgId,
+            String orgName,
             String username,
             String password,
             String nickname,
-            Set<String> roles,
+            Map<Long, String> roles,
             Set<String> permissions,
             Set<String> dataPolicy,
             boolean isSuperAdmin,
             boolean enabled,
             boolean accountNonExpired,
             boolean credentialsNonExpired,
-            boolean accountNonLocked) {
+            boolean accountNonLocked
+    ) {
         this.userId = userId;
         this.tenantId = tenantId;
         this.orgId = orgId;
+        this.orgName = orgName;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
-        this.roles = roles != null ? roles : new HashSet<>();
+        this.roles = roles != null ? roles : new HashMap<>();
         this.permissions = permissions != null ? permissions : new HashSet<>();
         this.dataPolicy = dataPolicy != null ? dataPolicy : new HashSet<>();
         this.isSuperAdmin = isSuperAdmin;
@@ -67,14 +71,17 @@ public class LoginUser implements UserDetails {
             Long userId,
             Long tenantId,
             Long orgId,
+            String orgName,
             String username,
             String password,
             String nickname,
-            Set<String> roles,
+            Map<Long, String> roles,
             Set<String> permissions,
-            Set<String> dataPolicy) {
-        this(userId, tenantId, orgId, username, password, nickname, roles, permissions, dataPolicy, false, true, true,
-                true, true);
+            Set<String> dataPolicy
+    ) {
+        this(userId, tenantId, orgId, orgName, username, password, nickname, roles, permissions, dataPolicy,
+                false, true, true, true, true
+        );
     }
 
     @Override
@@ -105,11 +112,15 @@ public class LoginUser implements UserDetails {
         return orgId;
     }
 
+    public String getOrgName() {
+        return orgName;
+    }
+
     public String getNickname() {
         return nickname;
     }
 
-    public Set<String> getRoles() {
+    public Map<Long, String> getRoles() {
         return roles;
     }
 

@@ -1,9 +1,9 @@
 package io.github.faustofan.admin.auth.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Set;
 
-import org.babyfish.jimmer.sql.ast.impl.CaseBuilder.Str;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 当前用户信息响应
@@ -20,8 +20,16 @@ public record CurrentUserResponse(
         Long tenantId,
         @Schema(description = "组织机构ID", example = "100", nullable = true)
         Long orgId,
-        @Schema(description = "用户角色列表", example = "[\"ADMIN\", \"USER\"]")
-        Set<String> roles,
+        @Schema(description = "组织机构名", example = "演示机构", nullable = true)
+        String orgName,
+        @Schema(description = "用户角色列表",
+                example = """
+                    {
+                        1: "管理员",
+                        2: "用户"
+                    }
+                """)
+        Map<Long, String> roles,
         @Schema(description = "用户权限列表", example = "[\"user:read\", \"user:write\", \"role:read\"]")
         Set<String> permissions,
         @Schema(description = "是否为超级管理员", example = "false")
